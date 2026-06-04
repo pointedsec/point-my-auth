@@ -1,0 +1,35 @@
+# Phase 4 — Authorization Aspect
+
+## Context
+Implement the core AOP aspect that intercepts `@AuthorizeEntity` annotated methods and orchestrates the authorization flow.
+
+## Files to Create
+
+### `AuthorizeEntityAspect`
+- **Path**: `point-my-auth-core/src/main/java/com/pointmyauth/aspect/AuthorizeEntityAspect.java`
+- **Annotations**: `@Aspect`, `@Component`, `@Order(Ordered.HIGHEST_PRECEDENCE + 10)`
+- **Dependencies injected**:
+  - `AuthorizationHandlerRegistry`
+  - `CompositeParameterResolver`
+  - `CurrentUserProvider` (optional, `@Autowired(required=false)`)
+
+### Around Advice Logic
+1. Read `@AuthorizeEntity` metadata from intercepted method
+2. For each `id` in `ids[]`: resolve via `CompositeParameterResolver`
+3. If `includeUser=true` and `currentUserProvider != null`: call `getCurrentUser()`
+4. Build `AuthorizationContext` via Builder
+5. Resolve handler via `AuthorizationHandlerRegistry.resolve()`
+6. Call `handler.authorize(context)`
+7. If `AuthorizationException` thrown: propagate immediately (do NOT call proceed())
+8. Otherwise: `joinPoint.proceed()` and return result
+
+## Integration Test
+- `@SpringBootTest` with minimal context
+- Test: handler that authorizes → method executes
+- Test: handler that throws → AuthorizationException propagated
+- Test: includeUser=false → getCurrentUser never called
+
+## Verification
+```bash
+mvn test -pl point-my-auth-core -Dtest="*AuthorizeEntityAspect*"
+```

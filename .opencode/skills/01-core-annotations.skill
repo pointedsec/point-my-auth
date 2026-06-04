@@ -1,0 +1,46 @@
+# Phase 1 — Core Annotations & Base Classes
+
+## Context
+This phase implements the foundational types for the authorization library in `point-my-auth-core`.
+
+## Files to Create
+
+### 1. `@AuthorizeEntity` annotation
+- **Path**: `point-my-auth-core/src/main/java/com/pointmyauth/annotation/AuthorizeEntity.java`
+- **Package**: `com.pointmyauth.annotation`
+- **Fields**: `ids()`, `includeUser()`, `includeAuthorizationCase()`, `authorizationCase()`, `authorizationHandler()`
+- **Meta**: `@Target(ElementType.METHOD)`, `@Retention(RetentionPolicy.RUNTIME)`, `@Documented`
+
+### 2. `AuthorizationHandler<U>` interface
+- **Path**: `point-my-auth-core/src/main/java/com/pointmyauth/handler/AuthorizationHandler.java`
+- **Package**: `com.pointmyauth.handler`
+- **Method**: `void authorize(AuthorizationContext<U> context)`
+- **Javadoc**: Describe the contract with `@param <U>` type param
+
+### 3. `AuthorizationContext<U>` — immutable context
+- **Path**: `point-my-auth-core/src/main/java/com/pointmyauth/context/AuthorizationContext.java`
+- **Fields**: `resolvedIds` (Map), `currentUser` (U, nullable), `authorizationCase` (String), `interceptedMethod` (Method)
+- **Builder**: Static Builder class
+- **Helper methods**: `getId(String, Class<T>)`, `getLongId(String)`, `getStringId(String)`
+
+### 4. `CurrentUserProvider<U>` — functional interface
+- **Path**: `point-my-auth-core/src/main/java/com/pointmyauth/user/CurrentUserProvider.java`
+- **Package**: `com.pointmyauth.user`
+- **Annotation**: `@FunctionalInterface`
+- **Method**: `U getCurrentUser()`
+
+### 5. `AuthorizationException` — runtime exception
+- **Path**: `point-my-auth-core/src/main/java/com/pointmyauth/exception/AuthorizationException.java`
+- **Package**: `com.pointmyauth.exception`
+- **Extends**: `RuntimeException`
+- **Constructors**: (String message), (String message, Throwable cause)
+
+## Conventions
+- Javadoc in English on all public API
+- Nullability annotations: `@Nullable`, `@NonNull` from `jakarta.annotation`
+- No Spring-specific imports in these base classes
+
+## Verification
+```bash
+mvn compile -pl point-my-auth-core -DskipTests
+```

@@ -1,0 +1,51 @@
+# Phase 6 — Full Test Suite
+
+## Context
+Achieve >85% code coverage with comprehensive unit and integration tests.
+
+## Tests to Create
+
+### Unit Tests
+1. **`AuthorizationContextTest`**
+   - Builder constructs correctly with all fields
+   - `getId()` casts correctly
+   - `getLongId()` converts String to Long
+   - `currentUser` null when not provided
+
+2. **`AuthorizeEntityAspectTest`** (with Mockito)
+   - Mock ProceedingJoinPoint
+   - Verify handler.authorize() called before proceed()
+   - Verify AuthorizationException propagates without proceed()
+   - Verify order when includeUser=true/false
+
+3. **`CompositeParameterResolverTest`**
+   - Delegates to first resolver that supports()
+   - Exception when no resolver supports
+   - Works with empty resolver list
+
+4. **`PathVariableResolverTest`**
+   - Resolves when name matches @PathVariable
+   - Returns null for non-existent name
+   - supports() false for prefixed expressions
+
+5. **`RequestBodyResolverTest`**
+   - Resolves full object with "requestDto"
+   - Resolves nested field "requestDto.field"
+   - Exception for non-existent field
+
+6. **`AuthorizationHandlerRegistryTest`**
+   - Handler as Bean → returns Bean instance
+   - Handler without Bean → reflection instantiation
+   - No no-arg constructor → IllegalStateException
+
+### Integration Tests
+7. **`AuthorizeEntityIntegrationTest`**
+- `@SpringBootTest` with minimal context
+- Methods annotated with handlers that authorize/deny
+- Verify correct outcomes
+
+## Verification
+```bash
+mvn clean verify -P coverage -pl point-my-auth-core
+# Check coverage > 85%
+```

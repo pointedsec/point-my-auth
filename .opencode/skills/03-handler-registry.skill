@@ -1,0 +1,27 @@
+# Phase 3 — Handler Registry
+
+## Context
+Build the registry that resolves `AuthorizationHandler` implementations, prioritizing Spring Beans over reflection-based instantiation.
+
+## Files to Create
+
+### `AuthorizationHandlerRegistry`
+- **Path**: `point-my-auth-core/src/main/java/com/pointmyauth/handler/AuthorizationHandlerRegistry.java`
+- **Annotation**: `@Component`
+- **Constructor injection**: `ApplicationContext`
+- **Method**: `AuthorizationHandler<?> resolve(Class<? extends AuthorizationHandler> handlerClass)`
+  - First look up as Spring Bean via `applicationContext.getBean(handlerClass)`
+  - If not found, instantiate via reflection (no-arg constructor)
+  - Cache resolved handlers in `ConcurrentHashMap<Class, AuthorizationHandler>`
+  - Throw `IllegalStateException` if unresolvable
+
+## Tests
+Test three scenarios:
+1. Handler registered as Bean → returns Bean instance
+2. Handler without Bean → instantiated via reflection
+3. Handler without Bean and no no-arg constructor → IllegalStateException
+
+## Verification
+```bash
+mvn test -pl point-my-auth-core -Dtest="*AuthorizationHandlerRegistry*"
+```

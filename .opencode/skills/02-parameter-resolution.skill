@@ -1,0 +1,38 @@
+# Phase 2 — Parameter Resolution System
+
+## Context
+Implement the parameter resolution system that extracts values from method arguments based on annotation expressions.
+
+## Files to Create
+
+### 1. `ParameterResolver` interface
+- **Path**: `point-my-auth-core/src/main/java/com/pointmyauth/resolver/ParameterResolver.java`
+- **Methods**: `boolean supports(String expression, MethodSignature)`, `Object resolve(String expression, JoinPoint)`
+
+### 2. `PathVariableResolver`
+- **Path**: `point-my-auth-core/src/main/java/com/pointmyauth/resolver/PathVariableResolver.java`
+- **Logic**: Maps expression to @PathVariable parameter index in the method signature
+- **@Component**
+
+### 3. `RequestBodyResolver`
+- **Path**: `point-my-auth-core/src/main/java/com/pointmyauth/resolver/RequestBodyResolver.java`
+- **Logic**: Resolves full @RequestBody object and nested fields via reflection (depth 2)
+- **@Component**
+
+### 4. `HeaderResolver`
+- **Path**: `point-my-auth-core/src/main/java/com/pointmyauth/resolver/HeaderResolver.java`
+- **Logic**: Prefix `#header:` → reads from HttpServletRequest via RequestContextHolder
+- **@Component**
+
+### 5. `CompositeParameterResolver`
+- **Path**: `point-my-auth-core/src/main/java/com/pointmyauth/resolver/CompositeParameterResolver.java`
+- **Logic**: Accepts `List<ParameterResolver>`, delegates to first `supports()`, throws IllegalArgumentException if none match
+- **@Component**
+
+## Tests
+Create unit tests for each resolver under `point-my-auth-core/src/test/java/com/pointmyauth/resolver/`
+
+## Verification
+```bash
+mvn test -pl point-my-auth-core -Dtest="*Resolver*"
+```

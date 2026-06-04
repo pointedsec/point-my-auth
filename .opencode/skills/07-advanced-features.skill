@@ -1,0 +1,39 @@
+# Phase 7 — Advanced Features
+
+## Context
+Add powerful advanced features to the library.
+
+## Features to Implement
+
+### 1. `@AuthorizeEntities` (repeatable container)
+- **Path**: `point-my-auth-core/src/main/java/com/pointmyauth/annotation/AuthorizeEntities.java`
+- Container annotation for multiple `@AuthorizeEntity` on same method
+- Execute all in order; all must pass
+
+### 2. `AuthorizationPostProcessor` interface
+- **Path**: `point-my-auth-core/src/main/java/com/pointmyauth/handler/AuthorizationPostProcessor.java`
+- Method: `Object postProcess(Object result, AuthorizationContext<?> context)`
+- Transforms method result after authorization (e.g., field filtering)
+
+### 3. `AuthorizationAuditListener` interface
+- **Path**: `point-my-auth-core/src/main/java/com/pointmyauth/handler/AuthorizationAuditListener.java`
+- Methods: `onAuthorizationSuccess(ctx, method)`, `onAuthorizationFailure(ctx, method, exception)`
+- For audit logging integration
+
+### 4. `@ConditionalAuthorize` annotation
+- **Path**: `point-my-auth-core/src/main/java/com/pointmyauth/annotation/ConditionalAuthorize.java`
+- Does NOT throw exception on failure; returns null or Optional.empty()
+- Useful for filtered lists
+
+### 5. `AuthorizationCacheSupport` interface
+- **Path**: `point-my-auth-core/src/main/java/com/pointmyauth/handler/AuthorizationCacheSupport.java`
+- Methods: `String cacheKey(AuthorizationContext<?>)`, `Duration cacheTtl()`
+- Mixin interface for cacheable handlers
+
+## Tests
+Create unit tests for each new feature.
+
+## Verification
+```bash
+mvn test -pl point-my-auth-core -Dtest="*AuthorizeEntities*,*AuthorizationPostProcessor*,*AuthorizationAuditListener*,*ConditionalAuthorize*,*AuthorizationCacheSupport*"
+```

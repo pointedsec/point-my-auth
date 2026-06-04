@@ -1,0 +1,33 @@
+# Phase 8 — Distribution & Publishing
+
+## Context
+Prepare the library for Maven Central publication with CI/CD workflows.
+
+## Tasks
+
+### 1. Maven Central POM Configuration
+- Add `<licenses>` (Apache 2.0)
+- Add `<developers>` with pointedsec info
+- Add `<scm>` pointing to GitHub
+- Configure: maven-source-plugin, maven-javadoc-plugin, maven-gpg-plugin, nexus-staging-maven-plugin
+- All under `<profile id="release">`
+
+### 2. CI Workflow (`.github/workflows/ci.yml`)
+- Trigger: push to main, pull requests
+- Matrix: Java 21 + Java 25
+- Steps: checkout → setup JDK → mvn verify -P coverage
+- Upload Jacoco report as artifact
+
+### 3. Release Workflow (`.github/workflows/release.yml`)
+- Trigger: push tag v*
+- Steps: version set → deploy -P release → create GitHub Release
+- Secrets needed: OSSRH_USERNAME, OSSRH_TOKEN, GPG_PRIVATE_KEY, GPG_PASSPHRASE
+
+### 4. Documentation
+- `CONTRIBUTING.md`: fork setup, commit conventions, PR process
+- `CHANGELOG.md`: Keep a Changelog format
+
+## Verification
+```bash
+mvn clean verify -P release -DskipTests
+```

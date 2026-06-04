@@ -1,0 +1,34 @@
+# Phase 5 — Auto-configuration & Starter
+
+## Context
+Wire up Spring Boot auto-configuration, create the configurer interface, and build the example application.
+
+## Files to Create
+
+### 1. `PointMyAuthAutoConfiguration`
+- **Path**: `point-my-auth-core/src/main/java/com/pointmyauth/config/PointMyAuthAutoConfiguration.java`
+- **Annotation**: `@Configuration`, `@EnableAspectJAutoProxy`
+- **Beans**: AuthorizeEntityAspect, AuthorizationHandlerRegistry, CompositeParameterResolver, all individual resolvers
+- **Condition**: `@ConditionalOnMissingBean` on each
+
+### 2. Auto-configuration metadata
+- **Path**: `point-my-auth-core/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`
+- **Content**: `com.pointmyauth.config.PointMyAuthAutoConfiguration`
+
+### 3. `PointMyAuthConfigurer` interface
+- **Path**: `point-my-auth-core/src/main/java/com/pointmyauth/config/PointMyAuthConfigurer.java`
+- **Method**: `CurrentUserProvider<?> currentUserProvider()`
+
+### 4. Example Application
+- **Path**: `examples/point-my-auth-example/src/main/java/com/pointmyauth/example/`
+- Create: `PointMyAuthExampleApplication.java` (main class)
+- Create: `Order.java` (entity POJO)
+- Create: `OrderAuthorizationHandler.java` implements AuthorizationHandler
+- Create: `AuthConfig.java` implements PointMyAuthConfigurer with SecurityContextHolder-based provider
+- Create: `OrderController.java` with @AuthorizeEntity on getOrder endpoint
+- Create: `application.yml`
+
+## Verification
+```bash
+mvn compile -pl point-my-auth-core,examples/point-my-auth-example -DskipTests
+```
