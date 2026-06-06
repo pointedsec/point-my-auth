@@ -48,7 +48,7 @@ public class AuthorizeEntityAspect {
 
     private final AuthorizationHandlerRegistry handlerRegistry;
 
-    @Nullable private final CurrentUserProvider<?> currentUserProvider;
+    @Nullable private final CurrentUserProvider<Object> currentUserProvider;
 
     /**
      * Creates the aspect with the given registry and optional user provider.
@@ -57,8 +57,8 @@ public class AuthorizeEntityAspect {
      * @param currentUserProvider the current user provider (may be {@code null})
      */
     public AuthorizeEntityAspect(
-            AuthorizationHandlerRegistry handlerRegistry, @Nullable CurrentUserProvider<?> currentUserProvider) {
-        this.handlerRegistry = handlerRegistry;
+            AuthorizationHandlerRegistry registry, @Nullable CurrentUserProvider<Object> currentUserProvider) {
+        this.handlerRegistry = registry;
         this.currentUserProvider = currentUserProvider;
     }
 

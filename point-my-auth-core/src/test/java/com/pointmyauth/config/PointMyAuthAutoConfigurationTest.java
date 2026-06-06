@@ -32,7 +32,7 @@ class PointMyAuthAutoConfigurationTest {
         contextRunner
                 .withBean(PointMyAuthConfigurer.class, () -> (PointMyAuthConfigurer) () -> () -> "custom-user")
                 .run(context -> {
-                    CurrentUserProvider<?> provider = context.getBean(CurrentUserProvider.class);
+                    CurrentUserProvider<Object> provider = context.getBean(CurrentUserProvider.class);
                     assertThat(provider.getCurrentUser()).isEqualTo("custom-user");
                 });
     }

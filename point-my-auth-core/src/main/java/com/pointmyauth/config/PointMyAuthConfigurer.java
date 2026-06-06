@@ -29,5 +29,5 @@ public interface PointMyAuthConfigurer {
      *
      * @return the current user provider
      */
-    CurrentUserProvider<?> currentUserProvider();
+    CurrentUserProvider<Object> currentUserProvider();
 }
