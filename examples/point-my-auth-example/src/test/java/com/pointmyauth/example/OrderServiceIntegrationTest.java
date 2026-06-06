@@ -1,5 +1,6 @@
 package com.pointmyauth.example;
 
+import com.pointmyauth.cache.AuthorizationCacheSupport;
 import com.pointmyauth.exception.AuthorizationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,7 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SpringBootTest
+@SpringBootTest(classes = ExampleApplication.class)
 @EnabledForJreRange(
         min = JRE.JAVA_21,
         max = JRE.JAVA_22,
@@ -25,9 +26,13 @@ class OrderServiceIntegrationTest {
     @Autowired
     private AuthConfig authConfig;
 
+    @Autowired
+    private AuthorizationCacheSupport cacheSupport;
+
     @BeforeEach
     void setUp() {
         authConfig.clearCurrentUser();
+        cacheSupport.clear();
     }
 
     @Test

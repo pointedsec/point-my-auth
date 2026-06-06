@@ -1,6 +1,7 @@
 package com.pointmyauth.example;
 
 import com.pointmyauth.annotation.AuthorizeEntity;
+import com.pointmyauth.annotation.ConditionalAuthorize;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,8 +17,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * REST controller demonstrating {@code @AuthorizeEntity} usage in various
- * real-world scenarios.
+ * REST controller demonstrating {@code @AuthorizeEntity} and
+ * {@code @ConditionalAuthorize} usage in various real-world scenarios.
  */
 @RestController
 @RequestMapping("/api/orders")
@@ -138,5 +139,75 @@ public class OrderController {
             authorizationHandler = AllowAllAuthorizationHandler.class)
     public ResponseEntity<String> healthCheck() {
         return ResponseEntity.ok("OK");
+    }
+
+    // =====================================================================
+    // @ConditionalAuthorize examples — SpEL-based conditional authorization
+    // =====================================================================
+
+    // 11. Simple numeric comparison
+    @GetMapping("/conditional/positive/{orderId}")
+    @ConditionalAuthorize(condition = "#orderId > 0", authorizationHandler = ConditionalOrderHandler.class)
+    public ResponseEntity<String> getPositiveOrder(@PathVariable Long orderId) {
+        return ResponseEntity.ok("order " + orderId);
+    }
+
+    // 12. Check string is not null/empty
+    @GetMapping("/conditional/valid-name")
+    @ConditionalAuthorize(
+            condition = "#name != null and #name.length() > 0",
+            authorizationHandler = ConditionalOrderHandler.class)
+    public ResponseEntity<String> getByName(@RequestParam String name) {
+        return ResponseEntity.ok("found: " + name);
+    }
+
+    // 13. Check object attribute
+    @PostMapping("/conditional/valid-company")
+    @ConditionalAuthorize(
+            condition = "#request.companyId != null and #request.companyId.length() >= 3",
+            authorizationHandler = ConditionalOrderHandler.class)
+    public ResponseEntity<String> createValidCompanyOrder(@RequestBody OrderService.CreateOrderRequest request) {
+        return ResponseEntity.ok("created for " + request.companyId());
+    }
+
+    // 14. Check array/list size
+    @PostMapping("/conditional/batch-limit")
+    @ConditionalAuthorize(condition = "#orderIds.size() <= 10", authorizationHandler = ConditionalOrderHandler.class)
+    public ResponseEntity<String> batchProcess(@RequestBody List<Long> orderIds) {
+        return ResponseEntity.ok("processed " + orderIds.size() + " orders");
+    }
+
+    // 15. Multiple conditions combined with AND
+    @GetMapping("/conditional/combined/{orderId}")
+    @ConditionalAuthorize(
+            condition = "#orderId > 0 and #orderId < 1000000",
+            authorizationHandler = ConditionalOrderHandler.class)
+    public ResponseEntity<String> getValidRangeOrder(@PathVariable Long orderId) {
+        return ResponseEntity.ok("valid order " + orderId);
+    }
+
+    // 16. Check enum or string equality
+    @PostMapping("/conditional/allowed-status")
+    @ConditionalAuthorize(
+            condition = "#status == 'ACTIVE' or #status == 'PENDING'",
+            authorizationHandler = ConditionalOrderHandler.class)
+    public ResponseEntity<String> getByStatus(@RequestParam String status) {
+        return ResponseEntity.ok("orders with status: " + status);
+    }
+
+    // 17. Check nested object attribute
+    @PostMapping("/conditional/nested")
+    @ConditionalAuthorize(
+            condition = "#request != null and #request.name != null and #request.name.length() > 2",
+            authorizationHandler = ConditionalOrderHandler.class)
+    public ResponseEntity<String> createWithValidName(@RequestBody OrderService.CreateOrderRequest request) {
+        return ResponseEntity.ok("created: " + request.name());
+    }
+
+    // 18. Boolean check
+    @GetMapping("/conditional/flag/{orderId}")
+    @ConditionalAuthorize(condition = "#orderId != null", authorizationHandler = ConditionalOrderHandler.class)
+    public ResponseEntity<String> getNonNullOrder(@PathVariable Long orderId) {
+        return ResponseEntity.ok("order " + orderId);
     }
 }
