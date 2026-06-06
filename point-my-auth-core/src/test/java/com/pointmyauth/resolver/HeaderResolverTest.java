@@ -58,7 +58,7 @@ class HeaderResolverTest {
         void shouldResolveHeaderValue() throws Exception {
             when(request.getHeader("X-Tenant-Id")).thenReturn("tenant-123");
             Method method = StubController.class.getMethod("anyMethod");
-            Object result = resolver.resolve("#header:X-Tenant-Id", method, new Object[]{});
+            Object result = resolver.resolve("#header:X-Tenant-Id", method, new Object[] {});
 
             assertThat(result).isEqualTo("tenant-123");
         }
@@ -68,7 +68,7 @@ class HeaderResolverTest {
         void shouldReturnNullForMissingHeader() throws Exception {
             when(request.getHeader("X-Missing")).thenReturn(null);
             Method method = StubController.class.getMethod("anyMethod");
-            Object result = resolver.resolve("#header:X-Missing", method, new Object[]{});
+            Object result = resolver.resolve("#header:X-Missing", method, new Object[] {});
 
             assertThat(result).isNull();
         }
@@ -77,7 +77,7 @@ class HeaderResolverTest {
         @DisplayName("should return null for non-header param name")
         void shouldReturnNullForNonHeaderName() throws Exception {
             Method method = StubController.class.getMethod("anyMethod");
-            Object result = resolver.resolve("orderId", method, new Object[]{});
+            Object result = resolver.resolve("orderId", method, new Object[] {});
 
             assertThat(result).isNull();
         }
@@ -86,7 +86,6 @@ class HeaderResolverTest {
     @SuppressWarnings("unused")
     static class StubController {
 
-        public void anyMethod() {
-        }
+        public void anyMethod() {}
     }
 }

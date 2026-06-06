@@ -26,10 +26,7 @@ class CompositeParameterResolverTest {
         request = mock(HttpServletRequest.class);
         when(request.getHeader("X-Tenant-Id")).thenReturn("tenant-abc");
         resolver = new CompositeParameterResolver(
-                new HeaderResolver(request),
-                new PathVariableResolver(),
-                new RequestBodyResolver()
-        );
+                new HeaderResolver(request), new PathVariableResolver(), new RequestBodyResolver());
     }
 
     @Nested
@@ -68,10 +65,8 @@ class CompositeParameterResolverTest {
         @Test
         @DisplayName("should resolve via HeaderResolver")
         void shouldResolveHeader() throws Exception {
-            Method method = StubController.class.getMethod("mixed",
-                    Long.class, StubDto.class);
-            Object result = resolver.resolve("#header:X-Tenant-Id", method,
-                    new Object[]{42L, new StubDto("corp")});
+            Method method = StubController.class.getMethod("mixed", Long.class, StubDto.class);
+            Object result = resolver.resolve("#header:X-Tenant-Id", method, new Object[] {42L, new StubDto("corp")});
 
             assertThat(result).isEqualTo("tenant-abc");
         }
@@ -79,10 +74,8 @@ class CompositeParameterResolverTest {
         @Test
         @DisplayName("should resolve via PathVariableResolver")
         void shouldResolvePathVar() throws Exception {
-            Method method = StubController.class.getMethod("mixed",
-                    Long.class, StubDto.class);
-            Object result = resolver.resolve("orderId", method,
-                    new Object[]{42L, new StubDto("corp")});
+            Method method = StubController.class.getMethod("mixed", Long.class, StubDto.class);
+            Object result = resolver.resolve("orderId", method, new Object[] {42L, new StubDto("corp")});
 
             assertThat(result).isEqualTo(42L);
         }
@@ -90,10 +83,8 @@ class CompositeParameterResolverTest {
         @Test
         @DisplayName("should resolve via RequestBodyResolver for dotted fields")
         void shouldResolveBodyField() throws Exception {
-            Method method = StubController.class.getMethod("mixed",
-                    Long.class, StubDto.class);
-            Object result = resolver.resolve("dto.companyId", method,
-                    new Object[]{42L, new StubDto("corp")});
+            Method method = StubController.class.getMethod("mixed", Long.class, StubDto.class);
+            Object result = resolver.resolve("dto.companyId", method, new Object[] {42L, new StubDto("corp")});
 
             assertThat(result).isEqualTo("corp");
         }
@@ -101,10 +92,8 @@ class CompositeParameterResolverTest {
         @Test
         @DisplayName("should return null for unsupported param name")
         void shouldReturnNullForUnknown() throws Exception {
-            Method method = StubController.class.getMethod("mixed",
-                    Long.class, StubDto.class);
-            Object result = resolver.resolve("#header:X-Missing", method,
-                    new Object[]{42L, new StubDto("corp")});
+            Method method = StubController.class.getMethod("mixed", Long.class, StubDto.class);
+            Object result = resolver.resolve("#header:X-Missing", method, new Object[] {42L, new StubDto("corp")});
 
             assertThat(result).isNull();
         }
@@ -117,11 +106,9 @@ class CompositeParameterResolverTest {
         @Test
         @DisplayName("should use newly added resolver")
         void shouldUseNewResolver() throws Exception {
-            Method method = StubController.class.getMethod("mixed",
-                    Long.class, StubDto.class);
+            Method method = StubController.class.getMethod("mixed", Long.class, StubDto.class);
 
-            Object before = resolver.resolve("nonexistent", method,
-                    new Object[]{42L, new StubDto("x")});
+            Object before = resolver.resolve("nonexistent", method, new Object[] {42L, new StubDto("x")});
             assertThat(before).isNull();
 
             resolver.addResolver(new ParameterResolver() {
@@ -136,8 +123,7 @@ class CompositeParameterResolverTest {
                 }
             });
 
-            Object after = resolver.resolve("nonexistent", method,
-                    new Object[]{42L, new StubDto("x")});
+            Object after = resolver.resolve("nonexistent", method, new Object[] {42L, new StubDto("x")});
             assertThat(after).isEqualTo("custom-value");
         }
     }
@@ -168,9 +154,6 @@ class CompositeParameterResolverTest {
     @SuppressWarnings("unused")
     static class StubController {
 
-        public void mixed(
-                @PathVariable("orderId") Long orderId,
-                @RequestBody StubDto dto) {
-        }
+        public void mixed(@PathVariable("orderId") Long orderId, @RequestBody StubDto dto) {}
     }
 }

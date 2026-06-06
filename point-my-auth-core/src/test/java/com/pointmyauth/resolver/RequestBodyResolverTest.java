@@ -53,7 +53,7 @@ class RequestBodyResolverTest {
         void shouldResolveWholeBody() throws Exception {
             TestDto dto = new TestDto("corp-1", "Andres");
             Method method = StubController.class.getMethod("create", TestDto.class);
-            Object result = resolver.resolve("dto", method, new Object[]{dto});
+            Object result = resolver.resolve("dto", method, new Object[] {dto});
 
             assertThat(result).isSameAs(dto);
         }
@@ -63,7 +63,7 @@ class RequestBodyResolverTest {
         void shouldResolveNestedField() throws Exception {
             TestDto dto = new TestDto("corp-1", "Andres");
             Method method = StubController.class.getMethod("create", TestDto.class);
-            Object result = resolver.resolve("dto.companyId", method, new Object[]{dto});
+            Object result = resolver.resolve("dto.companyId", method, new Object[] {dto});
 
             assertThat(result).isEqualTo("corp-1");
         }
@@ -74,7 +74,7 @@ class RequestBodyResolverTest {
             InnerDto inner = new InnerDto("inner-42");
             OuterDto outer = new OuterDto(inner);
             Method method = StubController.class.getMethod("outer", OuterDto.class);
-            Object result = resolver.resolve("outer.inner.id", method, new Object[]{outer});
+            Object result = resolver.resolve("outer.inner.id", method, new Object[] {outer});
 
             assertThat(result).isEqualTo("inner-42");
         }
@@ -84,7 +84,7 @@ class RequestBodyResolverTest {
         void shouldReturnNullForDepthOver2() throws Exception {
             TestDto dto = new TestDto("x", "y");
             Method method = StubController.class.getMethod("create", TestDto.class);
-            Object result = resolver.resolve("dto.companyId.field.deep", method, new Object[]{dto});
+            Object result = resolver.resolve("dto.companyId.field.deep", method, new Object[] {dto});
 
             assertThat(result).isNull();
         }
@@ -93,7 +93,7 @@ class RequestBodyResolverTest {
         @DisplayName("should return null when @RequestBody is null")
         void shouldReturnNullWhenBodyIsNull() throws Exception {
             Method method = StubController.class.getMethod("create", TestDto.class);
-            Object result = resolver.resolve("dto.companyId", method, new Object[]{null});
+            Object result = resolver.resolve("dto.companyId", method, new Object[] {null});
 
             assertThat(result).isNull();
         }
@@ -103,7 +103,7 @@ class RequestBodyResolverTest {
         void shouldReturnNullWhenFieldNotFound() throws Exception {
             TestDto dto = new TestDto("corp-1", "Andres");
             Method method = StubController.class.getMethod("create", TestDto.class);
-            Object result = resolver.resolve("dto.nonexistent", method, new Object[]{dto});
+            Object result = resolver.resolve("dto.nonexistent", method, new Object[] {dto});
 
             assertThat(result).isNull();
         }
@@ -113,7 +113,7 @@ class RequestBodyResolverTest {
         void shouldResolveFieldFromParentClass() throws Exception {
             ChildDto child = new ChildDto("child-name", 42);
             Method method = StubController.class.getMethod("child", ChildDto.class);
-            Object result = resolver.resolve("child.code", method, new Object[]{child});
+            Object result = resolver.resolve("child.code", method, new Object[] {child});
 
             assertThat(result).isEqualTo(42);
         }
@@ -123,7 +123,7 @@ class RequestBodyResolverTest {
         void shouldReturnNullWhenNoMatch() throws Exception {
             TestDto dto = new TestDto("x", "y");
             Method method = StubController.class.getMethod("create", TestDto.class);
-            Object result = resolver.resolve("other.field", method, new Object[]{dto});
+            Object result = resolver.resolve("other.field", method, new Object[] {dto});
 
             assertThat(result).isNull();
         }
@@ -175,13 +175,10 @@ class RequestBodyResolverTest {
     @SuppressWarnings("unused")
     static class StubController {
 
-        public void create(@RequestBody TestDto dto) {
-        }
+        public void create(@RequestBody TestDto dto) {}
 
-        public void outer(@RequestBody OuterDto outer) {
-        }
+        public void outer(@RequestBody OuterDto outer) {}
 
-        public void child(@RequestBody ChildDto child) {
-        }
+        public void child(@RequestBody ChildDto child) {}
     }
 }

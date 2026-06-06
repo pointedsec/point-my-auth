@@ -1,6 +1,5 @@
 package com.pointmyauth.context;
 
-import com.pointmyauth.exception.AuthorizationException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -36,9 +35,8 @@ class AuthorizationContextTest {
         @DisplayName("should accept batch resolved IDs")
         void shouldAcceptBatchResolvedIds() {
             Map<String, Object> entries = Map.of("a", 1L, "b", "two");
-            AuthorizationContext<Void> ctx = AuthorizationContext.<Void>builder()
-                    .resolvedIds(entries)
-                    .build();
+            AuthorizationContext<Void> ctx =
+                    AuthorizationContext.<Void>builder().resolvedIds(entries).build();
 
             assertThat(ctx.getResolvedIds()).isEqualTo(entries);
         }
@@ -57,9 +55,8 @@ class AuthorizationContextTest {
         @Test
         @DisplayName("should build context with current user")
         void shouldBuildWithCurrentUser() {
-            AuthorizationContext<String> ctx = AuthorizationContext.<String>builder()
-                    .currentUser("alice")
-                    .build();
+            AuthorizationContext<String> ctx =
+                    AuthorizationContext.<String>builder().currentUser("alice").build();
 
             assertThat(ctx.getCurrentUser()).isEqualTo("alice");
         }
@@ -67,9 +64,8 @@ class AuthorizationContextTest {
         @Test
         @DisplayName("should build context with null current user")
         void shouldBuildWithNullUser() {
-            AuthorizationContext<String> ctx = AuthorizationContext.<String>builder()
-                    .currentUser(null)
-                    .build();
+            AuthorizationContext<String> ctx =
+                    AuthorizationContext.<String>builder().currentUser(null).build();
 
             assertThat(ctx.getCurrentUser()).isNull();
         }
@@ -103,9 +99,8 @@ class AuthorizationContextTest {
         @Test
         @DisplayName("getId should cast to the requested type")
         void getIdShouldCast() {
-            AuthorizationContext<Void> ctx = AuthorizationContext.<Void>builder()
-                    .resolvedId("id", 100L)
-                    .build();
+            AuthorizationContext<Void> ctx =
+                    AuthorizationContext.<Void>builder().resolvedId("id", 100L).build();
 
             assertThat(ctx.getId("id", Long.class)).isEqualTo(100L);
         }
@@ -113,7 +108,8 @@ class AuthorizationContextTest {
         @Test
         @DisplayName("getId should return null for missing keys")
         void getIdShouldReturnNull() {
-            AuthorizationContext<Void> ctx = AuthorizationContext.<Void>builder().build();
+            AuthorizationContext<Void> ctx =
+                    AuthorizationContext.<Void>builder().build();
 
             assertThat(ctx.getId("missing", String.class)).isNull();
         }
@@ -125,8 +121,7 @@ class AuthorizationContextTest {
                     .resolvedId("id", "string-value")
                     .build();
 
-            assertThatThrownBy(() -> ctx.getId("id", Long.class))
-                    .isInstanceOf(ClassCastException.class);
+            assertThatThrownBy(() -> ctx.getId("id", Long.class)).isInstanceOf(ClassCastException.class);
         }
 
         @Test
@@ -152,7 +147,8 @@ class AuthorizationContextTest {
         @Test
         @DisplayName("getLongId should return null for missing key")
         void getLongIdShouldReturnNull() {
-            AuthorizationContext<Void> ctx = AuthorizationContext.<Void>builder().build();
+            AuthorizationContext<Void> ctx =
+                    AuthorizationContext.<Void>builder().build();
 
             assertThat(ctx.getLongId("missing")).isNull();
         }
@@ -164,8 +160,7 @@ class AuthorizationContextTest {
                     .resolvedId("id", "not-a-number")
                     .build();
 
-            assertThatThrownBy(() -> ctx.getLongId("id"))
-                    .isInstanceOf(ClassCastException.class);
+            assertThatThrownBy(() -> ctx.getLongId("id")).isInstanceOf(ClassCastException.class);
         }
 
         @Test
@@ -191,7 +186,8 @@ class AuthorizationContextTest {
         @Test
         @DisplayName("getStringId should return null for missing key")
         void getStringIdShouldReturnNull() {
-            AuthorizationContext<Void> ctx = AuthorizationContext.<Void>builder().build();
+            AuthorizationContext<Void> ctx =
+                    AuthorizationContext.<Void>builder().build();
 
             assertThat(ctx.getStringId("missing")).isNull();
         }
@@ -223,13 +219,11 @@ class AuthorizationContextTest {
         @Test
         @DisplayName("should not be equal for different values")
         void shouldNotBeEqual() {
-            AuthorizationContext<String> ctx1 = AuthorizationContext.<String>builder()
-                    .resolvedId("id", 1L)
-                    .build();
+            AuthorizationContext<String> ctx1 =
+                    AuthorizationContext.<String>builder().resolvedId("id", 1L).build();
 
-            AuthorizationContext<String> ctx2 = AuthorizationContext.<String>builder()
-                    .resolvedId("id", 2L)
-                    .build();
+            AuthorizationContext<String> ctx2 =
+                    AuthorizationContext.<String>builder().resolvedId("id", 2L).build();
 
             assertThat(ctx1).isNotEqualTo(ctx2);
         }

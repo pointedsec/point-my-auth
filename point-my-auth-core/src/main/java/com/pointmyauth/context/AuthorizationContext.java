@@ -21,10 +21,11 @@ import java.util.Objects;
 public final class AuthorizationContext<U> {
 
     private final Map<String, Object> resolvedIds;
-    @Nullable
-    private final U currentUser;
-    @Nullable
-    private final String authorizationCase;
+
+    @Nullable private final U currentUser;
+
+    @Nullable private final String authorizationCase;
+
     private final Method interceptedMethod;
 
     private AuthorizationContext(Builder<U> builder) {
@@ -48,8 +49,7 @@ public final class AuthorizationContext<U> {
      *
      * @return the current user, or {@code null}
      */
-    @Nullable
-    public U getCurrentUser() {
+    @Nullable public U getCurrentUser() {
         return currentUser;
     }
 
@@ -58,8 +58,7 @@ public final class AuthorizationContext<U> {
      *
      * @return the authorization case, or {@code null}
      */
-    @Nullable
-    public String getAuthorizationCase() {
+    @Nullable public String getAuthorizationCase() {
         return authorizationCase;
     }
 
@@ -88,9 +87,8 @@ public final class AuthorizationContext<U> {
             return null;
         }
         if (!type.isInstance(value)) {
-            throw new ClassCastException(
-                    "Parameter '" + name + "' is of type " + value.getClass().getName()
-                            + " but " + type.getName() + " was requested");
+            throw new ClassCastException("Parameter '" + name + "' is of type "
+                    + value.getClass().getName() + " but " + type.getName() + " was requested");
         }
         return (T) value;
     }
@@ -102,8 +100,7 @@ public final class AuthorizationContext<U> {
      * @return the long value, or {@code null} if not present
      * @throws ClassCastException if the value is not a {@link Long}
      */
-    @Nullable
-    public Long getLongId(String name) {
+    @Nullable public Long getLongId(String name) {
         Object value = resolvedIds.get(name);
         if (value instanceof Long) {
             return (Long) value;
@@ -114,9 +111,8 @@ public final class AuthorizationContext<U> {
         if (value == null) {
             return null;
         }
-        throw new ClassCastException(
-                "Parameter '" + name + "' is of type " + value.getClass().getName()
-                        + " and cannot be converted to Long");
+        throw new ClassCastException("Parameter '" + name + "' is of type "
+                + value.getClass().getName() + " and cannot be converted to Long");
     }
 
     /**
@@ -125,8 +121,7 @@ public final class AuthorizationContext<U> {
      * @param name the parameter name
      * @return the string value, or {@code null} if not present
      */
-    @Nullable
-    public String getStringId(String name) {
+    @Nullable public String getStringId(String name) {
         Object value = resolvedIds.get(name);
         if (value == null) {
             return null;
@@ -177,14 +172,14 @@ public final class AuthorizationContext<U> {
     public static final class Builder<U> {
 
         private final Map<String, Object> resolvedIds = new HashMap<>();
-        @Nullable
-        private U currentUser;
-        @Nullable
-        private String authorizationCase;
+
+        @Nullable private U currentUser;
+
+        @Nullable private String authorizationCase;
+
         private Method interceptedMethod;
 
-        private Builder() {
-        }
+        private Builder() {}
 
         /**
          * Adds a resolved parameter value.

@@ -55,8 +55,7 @@ class AuthorizeEntityTest {
         Method method = SampleService.class.getMethod("getOrder", Long.class);
         AuthorizeEntity annotation = method.getDeclaredAnnotation(AuthorizeEntity.class);
 
-        assertThat(annotation.authorizationHandler())
-                .isEqualTo(SampleAuthorizationHandler.class);
+        assertThat(annotation.authorizationHandler()).isEqualTo(SampleAuthorizationHandler.class);
     }
 
     @Test
@@ -75,8 +74,7 @@ class AuthorizeEntityTest {
         @AuthorizeEntity(
                 ids = {"orderId"},
                 includeUser = true,
-                authorizationHandler = SampleAuthorizationHandler.class
-        )
+                authorizationHandler = SampleAuthorizationHandler.class)
         public String getOrder(Long orderId) {
             return "order";
         }
@@ -85,8 +83,7 @@ class AuthorizeEntityTest {
                 ids = {"orderId"},
                 includeAuthorizationCase = true,
                 authorizationCase = "DELETE",
-                authorizationHandler = SampleAuthorizationHandler.class
-        )
+                authorizationHandler = SampleAuthorizationHandler.class)
         public String deleteOrder(Long orderId) {
             return "deleted";
         }

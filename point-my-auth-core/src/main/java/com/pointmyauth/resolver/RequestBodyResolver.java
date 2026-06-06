@@ -48,9 +48,7 @@ public class RequestBodyResolver implements ParameterResolver {
 
     @Override
     public boolean supports(String paramName) {
-        return paramName != null
-                && !paramName.startsWith("#")
-                && paramName.contains(".");
+        return paramName != null && !paramName.startsWith("#") && paramName.contains(".");
     }
 
     private Object resolveField(Object target, String fieldPath) {
