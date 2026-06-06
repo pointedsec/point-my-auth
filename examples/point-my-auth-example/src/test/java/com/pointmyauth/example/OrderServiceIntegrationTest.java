@@ -8,11 +8,12 @@ import org.junit.jupiter.api.condition.EnabledForJreRange;
 import org.junit.jupiter.api.condition.JRE;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SpringBootTest
+@SpringBootTest(classes = ExampleApplication.class)
 @EnabledForJreRange(
         min = JRE.JAVA_21,
         max = JRE.JAVA_22,
@@ -25,9 +26,19 @@ class OrderServiceIntegrationTest {
     @Autowired
     private AuthConfig authConfig;
 
+    @Autowired
+    private ApplicationContext context;
+
     @BeforeEach
     void setUp() {
         authConfig.clearCurrentUser();
+        System.out.println("=== BEAN DEBUG ===");
+        System.out.println("AuthorizeEntityAspect: " + context.containsBean("authorizeEntityAspect"));
+        System.out.println("OrderService class: " + orderService.getClass().getName());
+        System.out.println("Is AOP proxied: "
+                + org.springframework.aop.framework.AopProxyUtils.ultimateTargetClass(orderService)
+                        .getName());
+        System.out.println("==================");
     }
 
     @Test

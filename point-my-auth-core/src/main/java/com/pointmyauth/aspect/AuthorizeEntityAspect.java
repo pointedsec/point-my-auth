@@ -23,6 +23,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.core.annotation.Order;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
@@ -85,31 +86,65 @@ public class AuthorizeEntityAspect {
 
     /**
      * Around advice that intercepts methods annotated with {@link AuthorizeEntity}.
+     * With @Repeatable, the compiler wraps even single annotations in the container,
+     * so we match on @AuthorizeEntities (the container) which is always present.
      */
-    @Around("@annotation(com.pointmyauth.annotation.AuthorizeEntity)")
-    public Object aroundSingle(ProceedingJoinPoint joinPoint) throws Throwable {
-        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        AuthorizeEntity annotation = signature.getMethod().getAnnotation(AuthorizeEntity.class);
-        return doAuthorize(joinPoint, annotation);
-    }
-
-    /**
-     * Around advice for repeatable container.
-     */
-    @Around("@annotation(com.pointmyauth.annotation.AuthorizeEntities)")
-    public Object aroundMultiple(ProceedingJoinPoint joinPoint) throws Throwable {
+    @Around(
+            "@annotation(com.pointmyauth.annotation.AuthorizeEntity) || @annotation(com.pointmyauth.annotation.AuthorizeEntities)")
+    public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
+
         AuthorizeEntities container = method.getAnnotation(AuthorizeEntities.class);
         if (container != null) {
             for (AuthorizeEntity annotation : container.value()) {
                 doAuthorize(joinPoint, annotation);
             }
+        } else {
+            AuthorizeEntity single = method.getAnnotation(AuthorizeEntity.class);
+            if (single != null) {
+                doAuthorize(joinPoint, single);
+            }
         }
+
         return joinPoint.proceed();
     }
 
-    private Object doAuthorize(ProceedingJoinPoint joinPoint, AuthorizeEntity authorizeEntity) throws Throwable {
+    /**
+     * Around advice for {@link ConditionalAuthorize} — evaluates SpEL before handler.
+     */
+    @Around("@annotation(com.pointmyauth.annotation.ConditionalAuthorize)")
+    public Object aroundConditional(ProceedingJoinPoint joinPoint) throws Throwable {
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        Method method = signature.getMethod();
+        ConditionalAuthorize annotation = method.getAnnotation(ConditionalAuthorize.class);
+        if (annotation == null) {
+            return joinPoint.proceed();
+        }
+
+        StandardEvaluationContext ctx = new StandardEvaluationContext();
+        String[] paramNames = signature.getParameterNames();
+        Object[] args = joinPoint.getArgs();
+        if (paramNames != null) {
+            for (int i = 0; i < paramNames.length; i++) {
+                ctx.setVariable(paramNames[i], args[i]);
+            }
+        }
+
+        Boolean result = parser.parseExpression(annotation.condition()).getValue(ctx, Boolean.class);
+        if (result == null || !result) {
+            throw new AuthorizationException("Conditional authorization denied: " + annotation.condition());
+        }
+
+        @SuppressWarnings("unchecked")
+        AuthorizationHandler<Object> handler = handlerRegistry.resolve(annotation.authorizationHandler());
+        handler.authorize(
+                AuthorizationContext.builder().interceptedMethod(method).build());
+
+        return joinPoint.proceed();
+    }
+
+    private void doAuthorize(ProceedingJoinPoint joinPoint, AuthorizeEntity authorizeEntity) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
 
@@ -144,7 +179,7 @@ public class AuthorizeEntityAspect {
                 if (!cached) {
                     throw new AuthorizationException("Access denied (cached)");
                 }
-                return joinPoint.proceed();
+                return;
             }
         }
 
@@ -160,8 +195,6 @@ public class AuthorizeEntityAspect {
             if (cacheSupport != null) {
                 cacheSupport.put(context, true);
             }
-
-            return joinPoint.proceed();
         } catch (AuthorizationException e) {
             errorMessage = e.getMessage();
 

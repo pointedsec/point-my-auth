@@ -1,6 +1,7 @@
 package com.pointmyauth.aspect;
 
 import com.pointmyauth.annotation.AuthorizeEntity;
+import com.pointmyauth.cache.AuthorizationCacheSupport;
 import com.pointmyauth.config.PointMyAuthAutoConfiguration;
 import com.pointmyauth.config.PointMyAuthConfigurer;
 import com.pointmyauth.context.AuthorizationContext;
@@ -43,9 +44,13 @@ class AuthorizeEntityAspectIntegrationTest {
     @Autowired
     private TestAuthConfig authConfig;
 
+    @Autowired
+    private AuthorizationCacheSupport cacheSupport;
+
     @BeforeEach
     void setUp() {
         authConfig.clearCurrentUser();
+        cacheSupport.clear();
     }
 
     @Test
