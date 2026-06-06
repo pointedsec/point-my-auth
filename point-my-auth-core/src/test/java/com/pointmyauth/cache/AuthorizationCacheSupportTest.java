@@ -6,6 +6,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -85,8 +88,9 @@ class AuthorizationCacheSupportTest {
 
         // Wait for expiration
         try {
-            Thread.sleep(10);
+            sleep(10, 10);
         } catch (InterruptedException ignored) {
+            // No Operation
         }
 
         assertThat(shortTtl.get(context)).isNull();
@@ -103,5 +107,17 @@ class AuthorizationCacheSupportTest {
         cache.put(context, true);
         // Should not expire within 5 seconds
         assertThat(cache.get(context)).isTrue();
+    }
+
+    private void sleep(int iCount, int iDelay) throws ExecutionException, InterruptedException {
+        ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+        List<Future<Integer>> futureList = new ArrayList<>(iCount);
+        for (int i=0; i < iCount; i++) {
+            int j = i;
+            futureList.add(scheduledExecutorService.schedule(() -> j, iDelay, TimeUnit.SECONDS));
+        }
+        for (Future<Integer> e : futureList) {
+            e.get();
+        }
     }
 }
