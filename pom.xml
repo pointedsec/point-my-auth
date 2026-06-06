@@ -38,6 +38,7 @@
         <maven-javadoc-plugin.version>3.7.0</maven-javadoc-plugin.version>
         <spotless.version>2.43.0</spotless.version>
         <spotless.google-java-format.version>1.19.0</spotless.google-java-format.version>
+        <sonar.organization>pointedsec</sonar.organization>
     </properties>
 
     <dependencyManagement>
