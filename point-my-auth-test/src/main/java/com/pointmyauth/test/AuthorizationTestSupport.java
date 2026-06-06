@@ -1,6 +1,5 @@
 package com.pointmyauth.test;
 
-import com.pointmyauth.annotation.AuthorizeEntity;
 import com.pointmyauth.config.PointMyAuthConfigurer;
 import com.pointmyauth.context.AuthorizationContext;
 import com.pointmyauth.exception.AuthorizationException;
@@ -171,19 +170,6 @@ public final class AuthorizationTestSupport {
          */
         public TestContextBuilder method(Method method) {
             this.interceptedMethod = method;
-            return this;
-        }
-
-        /**
-         * Sets the intercepted method from an {@link AuthorizeEntity} annotation's
-         * handler class (for finding the annotated method by handler reference).
-         *
-         * @param clazz the class containing the annotated method
-         * @param methodName the method name
-         * @return this builder
-         */
-        public TestContextBuilder annotatedMethod(Class<?> clazz, String methodName) {
-            this.interceptedMethod = findMethod(clazz, methodName);
             return this;
         }
 

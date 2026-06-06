@@ -115,10 +115,10 @@ class MockAuthorizationHandlerTest {
     @DisplayName("should reset all state")
     void shouldResetState() {
         handler.denyAll("denied");
-        try {
-            handler.authorize(AuthorizationTestSupport.context().user("alice").build());
-        } catch (AuthorizationException ignored) {
-        }
+        assertThatThrownBy(() -> handler.authorize(
+                        AuthorizationTestSupport.context().user("alice").build()))
+                .isInstanceOf(AuthorizationException.class);
+        assertThat(handler.invocationCount()).isEqualTo(1);
 
         handler.reset();
 
