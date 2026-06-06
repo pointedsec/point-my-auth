@@ -3,7 +3,7 @@
 [![CI](https://github.com/pointedsec/point-my-auth/actions/workflows/ci.yml/badge.svg)](https://github.com/pointedsec/point-my-auth/actions/workflows/ci.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pointedsec_point-my-auth&metric=alert_status)](https://sonarcloud.io/dashboard?id=pointedsec_point-my-auth)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=pointedsec_point-my-auth&metric=coverage)](https://sonarcloud.io/dashboard?id=pointedsec_point-my-auth)
-[![Maven Central](https://img.shields.io/maven-central/v/com.pointmyauth/point-my-auth-core)](https://central.sonatype.com/search?q=com.pointmyauth)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.pointedsec/point-my-auth-core)](https://central.sonatype.com/search?q=io.github.pointedsec)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **Declarative, annotation-driven authorization for Spring Boot.**
@@ -86,7 +86,7 @@ Traditional Spring Security requires configuring method security, writing `@PreA
 
 ```xml
 <dependency>
-    <groupId>com.pointmyauth</groupId>
+    <groupId>io.github.pointedsec</groupId>
     <artifactId>point-my-auth-spring-boot-starter</artifactId>
     <version>0.1.0</version>
 </dependency>
@@ -162,21 +162,21 @@ That's it. The aspect intercepts `deleteOrder`, resolves `orderId`, fetches the 
 ```xml
 <!-- Spring Boot Starter (recommended) -->
 <dependency>
-    <groupId>com.pointmyauth</groupId>
+    <groupId>io.github.pointedsec</groupId>
     <artifactId>point-my-auth-spring-boot-starter</artifactId>
     <version>0.1.0</version>
 </dependency>
 
 <!-- Or just the core library -->
 <dependency>
-    <groupId>com.pointmyauth</groupId>
+    <groupId>io.github.pointedsec</groupId>
     <artifactId>point-my-auth-core</artifactId>
     <version>0.1.0</version>
 </dependency>
 
 <!-- Test utilities (for testing your handlers) -->
 <dependency>
-    <groupId>com.pointmyauth</groupId>
+    <groupId>io.github.pointedsec</groupId>
     <artifactId>point-my-auth-test</artifactId>
     <version>0.1.0</version>
     <scope>test</scope>
@@ -186,8 +186,8 @@ That's it. The aspect intercepts `deleteOrder`, resolves `orderId`, fetches the 
 ### Gradle
 
 ```groovy
-implementation 'com.pointmyauth:point-my-auth-spring-boot-starter:0.1.0'
-testImplementation 'com.pointmyauth:point-my-auth-test:0.1.0'
+implementation 'io.github.pointedsec:point-my-auth-spring-boot-starter:0.1.0'
+testImplementation 'io.github.pointedsec:point-my-auth-test:0.1.0'
 ```
 
 ### Requirements
