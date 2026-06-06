@@ -1,6 +1,7 @@
 package com.pointmyauth.aspect;
 
 import com.pointmyauth.annotation.AuthorizeEntity;
+import com.pointmyauth.config.PointMyAuthAutoConfiguration;
 import com.pointmyauth.config.PointMyAuthConfigurer;
 import com.pointmyauth.context.AuthorizationContext;
 import com.pointmyauth.exception.AuthorizationException;
@@ -25,6 +26,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @SpringBootTest
 @TestPropertySource(properties = "spring.main.allow-bean-definition-overriding=true")
 @Import({
+    PointMyAuthAutoConfiguration.class,
     AuthorizeEntityAspectIntegrationTest.TestAuthConfig.class,
     AuthorizeEntityAspectIntegrationTest.TestService.class,
     AuthorizeEntityAspectIntegrationTest.TestHandler.class

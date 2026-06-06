@@ -4,6 +4,7 @@ import com.pointmyauth.handler.AuthorizationHandler;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -17,24 +18,17 @@ import java.lang.annotation.Target;
  * {@link com.pointmyauth.context.AuthorizationContext}, and delegates the authorization
  * decision to the specified {@link #authorizationHandler()}.
  * <p>
- * <strong>Usage example:</strong>
- * <pre>{@code
- * @AuthorizeEntity(
- *     ids = {"orderId"},
- *     includeUser = true,
- *     authorizationHandler = OrderAuthorizationHandler.class
- * )
- * public OrderDto getOrder(Long orderId) {
- *     return mapper.toDto(orderRepo.findById(orderId).orElseThrow());
- * }
- * }</pre>
+ * This annotation is repeatable — multiple instances can be stacked on the same method
+ * using the {@link AuthorizeEntities} container.
  *
  * @see AuthorizationHandler
  * @see com.pointmyauth.context.AuthorizationContext
+ * @see AuthorizeEntities
  */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
+@Repeatable(AuthorizeEntities.class)
 public @interface AuthorizeEntity {
 
     /**
@@ -42,7 +36,7 @@ public @interface AuthorizeEntity {
      * <p>
      * Supported resolution strategies:
      * <ul>
-     *     <li>{@code "orderId"} — resolves a {@code @PathVariable} parameter named {@code orderId}.</li>
+     *     <li>{@code "orderId"} — resolves a method parameter named {@code orderId}.</li>
      *     <li>{@code "requestDto"} — resolves the entire {@code @RequestBody} object.</li>
      *     <li>{@code "requestDto.companyId"} — navigates field {@code companyId} inside the {@code @RequestBody}.</li>
      *     <li>{@code "#header:X-Tenant-Id"} — resolves the HTTP header {@code X-Tenant-Id}.</li>
@@ -63,7 +57,7 @@ public @interface AuthorizeEntity {
     /**
      * The authorization case label (e.g., {@code "CREATE"}, {@code "DELETE"}).
      * <p>
-     * This value is always passed to the handler via the {@link AuthorizationContext},
+     * This value is always passed to the handler via the {@link com.pointmyauth.context.AuthorizationContext},
      * allowing a single handler to differentiate between create, read, update, and delete
      * operations. If left empty, the handler receives {@code null}.
      *
