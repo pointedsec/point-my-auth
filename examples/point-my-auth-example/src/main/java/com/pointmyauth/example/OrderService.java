@@ -17,7 +17,6 @@ public class OrderService {
     @AuthorizeEntity(
             ids = {"orderId"},
             includeUser = true,
-            includeAuthorizationCase = true,
             authorizationCase = "DELETE",
             authorizationHandler = OrderAuthorizationHandler.class)
     public void deleteOrder(Long orderId) {

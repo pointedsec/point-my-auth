@@ -61,20 +61,13 @@ public @interface AuthorizeEntity {
     boolean includeUser() default true;
 
     /**
-     * Whether to include an explicit authorization case label in the context.
-     * <p>
-     * When enabled, the value is taken from {@link #authorizationCase()}. This allows a
-     * single handler to differentiate between create, read, update, and delete operations.
-     *
-     * @return {@code true} to include an authorization case string
-     */
-    boolean includeAuthorizationCase() default false;
-
-    /**
      * The authorization case label (e.g., {@code "CREATE"}, {@code "DELETE"}).
-     * Only effective when {@link #includeAuthorizationCase()} is {@code true}.
+     * <p>
+     * This value is always passed to the handler via the {@link AuthorizationContext},
+     * allowing a single handler to differentiate between create, read, update, and delete
+     * operations. If left empty, the handler receives {@code null}.
      *
-     * @return the authorization case string
+     * @return the authorization case string (defaults to empty)
      */
     String authorizationCase() default "";
 

@@ -81,9 +81,9 @@ public class AuthorizeEntityAspect {
             user = currentUserProvider.getCurrentUser();
         }
 
-        String authCase = null;
-        if (authorizeEntity.includeAuthorizationCase()) {
-            authCase = authorizeEntity.authorizationCase();
+        String authCase = authorizeEntity.authorizationCase();
+        if (authCase.isEmpty()) {
+            authCase = null;
         }
 
         @SuppressWarnings("unchecked")
