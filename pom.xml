@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
 
     <name>point-my-auth</name>
-    <description>Declarative authorization library for Spring Boot</description>
+    <description>Declarative, annotation-driven authorization for Spring Boot. Enforce authorization rules on any method using simple annotations — no boilerplate, no manual interceptor wiring.</description>
 
     <modules>
         <module>point-my-auth-core</module>
