@@ -6,13 +6,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
-@TestPropertySource(properties = "spring.main.allow-bean-definition-overriding=true")
 class OrderServiceIntegrationTest {
 
     @Autowired
@@ -29,7 +27,7 @@ class OrderServiceIntegrationTest {
     @Test
     @DisplayName("should allow access with valid user")
     void shouldAllowWithValidUser() {
-        authConfig.setCurrentUser(new User(1L, "Alice", false));
+        authConfig.setCurrentUser(new PointitUser(1L, "Alice", "alice@example.com", "USER"));
 
         OrderService.OrderDto result = orderService.getOrder(100L);
 
@@ -48,7 +46,7 @@ class OrderServiceIntegrationTest {
     @Test
     @DisplayName("should deny delete for non-admin")
     void shouldDenyDeleteForNonAdmin() {
-        authConfig.setCurrentUser(new User(1L, "Alice", false));
+        authConfig.setCurrentUser(new PointitUser(1L, "Alice", "alice@example.com", "USER"));
 
         assertThatThrownBy(() -> orderService.deleteOrder(100L))
                 .isInstanceOf(AuthorizationException.class)
@@ -58,7 +56,7 @@ class OrderServiceIntegrationTest {
     @Test
     @DisplayName("should allow delete for admin")
     void shouldAllowDeleteForAdmin() {
-        authConfig.setCurrentUser(new User(1L, "Admin", true));
+        authConfig.setCurrentUser(new PointitUser(1L, "Admin", "admin@example.com", "ADMIN"));
 
         orderService.deleteOrder(100L);
     }
