@@ -5,12 +5,18 @@ import com.pointmyauth.handler.AuthorizationHandlerRegistry;
 import com.pointmyauth.user.CurrentUserProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("PointMyAuthAutoConfiguration")
+@EnabledForJreRange(
+        min = JRE.JAVA_21,
+        max = JRE.JAVA_22,
+        disabledReason = "Spring Boot 3.2.5 ASM does not support Java 23+ class file version")
 class PointMyAuthAutoConfigurationTest {
 
     private final ApplicationContextRunner contextRunner =
@@ -32,7 +38,7 @@ class PointMyAuthAutoConfigurationTest {
         contextRunner
                 .withBean(PointMyAuthConfigurer.class, () -> (PointMyAuthConfigurer) () -> () -> "custom-user")
                 .run(context -> {
-                    CurrentUserProvider<?> provider = context.getBean(CurrentUserProvider.class);
+                    CurrentUserProvider<Object> provider = context.getBean(CurrentUserProvider.class);
                     assertThat(provider.getCurrentUser()).isEqualTo("custom-user");
                 });
     }

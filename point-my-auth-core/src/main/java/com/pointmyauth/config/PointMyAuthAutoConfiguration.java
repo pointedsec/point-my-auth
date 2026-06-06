@@ -33,13 +33,13 @@ public class PointMyAuthAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public AuthorizeEntityAspect authorizeEntityAspect(
-            AuthorizationHandlerRegistry registry, @Nullable CurrentUserProvider<?> currentUserProvider) {
+            AuthorizationHandlerRegistry registry, @Nullable CurrentUserProvider<Object> currentUserProvider) {
         return new AuthorizeEntityAspect(registry, currentUserProvider);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public CurrentUserProvider<?> currentUserProvider(@Nullable PointMyAuthConfigurer configurer) {
+    public CurrentUserProvider<Object> currentUserProvider(@Nullable PointMyAuthConfigurer configurer) {
         if (configurer != null) {
             return configurer.currentUserProvider();
         }

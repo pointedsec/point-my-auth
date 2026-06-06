@@ -40,12 +40,11 @@ class AuthorizeEntityTest {
     }
 
     @Test
-    @DisplayName("should read includeAuthorizationCase and authorizationCase default")
-    void shouldReadAuthCaseDefaults() throws Exception {
+    @DisplayName("should read authorizationCase default")
+    void shouldReadAuthCaseDefault() throws Exception {
         Method method = SampleService.class.getMethod("getOrder", Long.class);
         AuthorizeEntity annotation = method.getDeclaredAnnotation(AuthorizeEntity.class);
 
-        assertThat(annotation.includeAuthorizationCase()).isFalse();
         assertThat(annotation.authorizationCase()).isEmpty();
     }
 
@@ -59,12 +58,11 @@ class AuthorizeEntityTest {
     }
 
     @Test
-    @DisplayName("should allow authorizationCase with explicit include")
-    void shouldAllowExplicitAuthCase() throws Exception {
+    @DisplayName("should allow authorizationCase without explicit include flag")
+    void shouldAllowAuthCaseDirectly() throws Exception {
         Method method = SampleService.class.getMethod("deleteOrder", Long.class);
         AuthorizeEntity annotation = method.getDeclaredAnnotation(AuthorizeEntity.class);
 
-        assertThat(annotation.includeAuthorizationCase()).isTrue();
         assertThat(annotation.authorizationCase()).isEqualTo("DELETE");
     }
 
@@ -81,7 +79,6 @@ class AuthorizeEntityTest {
 
         @AuthorizeEntity(
                 ids = {"orderId"},
-                includeAuthorizationCase = true,
                 authorizationCase = "DELETE",
                 authorizationHandler = SampleAuthorizationHandler.class)
         public String deleteOrder(Long orderId) {
