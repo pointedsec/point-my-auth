@@ -8,6 +8,8 @@ import com.pointmyauth.handler.AuthorizationHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,6 +29,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
     AuthorizeEntityAspectIntegrationTest.TestService.class,
     AuthorizeEntityAspectIntegrationTest.TestHandler.class
 })
+@EnabledForJreRange(
+        min = JRE.JAVA_21,
+        max = JRE.JAVA_22,
+        disabledReason = "Spring Boot 3.2.5 ASM does not support Java 23+ class file version")
 class AuthorizeEntityAspectIntegrationTest {
 
     @Autowired
