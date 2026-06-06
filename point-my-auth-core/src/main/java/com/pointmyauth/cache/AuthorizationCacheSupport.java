@@ -1,6 +1,7 @@
 package com.pointmyauth.cache;
 
 import com.pointmyauth.context.AuthorizationContext;
+import jakarta.annotation.Nullable;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -55,6 +56,7 @@ public class AuthorizationCacheSupport {
      * @param context the authorization context
      * @return the cached result ({@code true} = granted, {@code false} = denied), or {@code null}
      */
+    @Nullable
     public Boolean get(AuthorizationContext<?> context) {
         String key = buildKey(context);
         Long timestamp = timestamps.get(key);

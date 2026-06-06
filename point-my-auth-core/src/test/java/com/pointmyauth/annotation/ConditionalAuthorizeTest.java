@@ -51,6 +51,8 @@ class ConditionalAuthorizeTest {
 
     static class TestHandler implements AuthorizationHandler<Object> {
         @Override
-        public void authorize(AuthorizationContext<Object> context) {}
+        public void authorize(AuthorizationContext<Object> context) {
+            // No Operation
+        }
     }
 }

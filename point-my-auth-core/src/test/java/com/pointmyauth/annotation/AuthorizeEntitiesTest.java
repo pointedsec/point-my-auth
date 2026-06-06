@@ -76,11 +76,15 @@ class AuthorizeEntitiesTest {
 
     static class HandlerA implements AuthorizationHandler<Object> {
         @Override
-        public void authorize(AuthorizationContext<Object> context) {}
+        public void authorize(AuthorizationContext<Object> context) {
+            // No Operation
+        }
     }
 
     static class HandlerB implements AuthorizationHandler<Object> {
         @Override
-        public void authorize(AuthorizationContext<Object> context) {}
+        public void authorize(AuthorizationContext<Object> context) {
+            // No Operation
+        }
     }
 }

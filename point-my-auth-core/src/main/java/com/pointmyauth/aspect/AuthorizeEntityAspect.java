@@ -148,7 +148,33 @@ public class AuthorizeEntityAspect {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
 
-        Map<String, Object> resolvedIds = resolveParameters(authorizeEntity.ids(), method, joinPoint.getArgs());
+        @SuppressWarnings("unchecked")
+        AuthorizationContext<Object> context = buildContext(authorizeEntity, method, joinPoint.getArgs());
+        throwIfCachedDenied(context);
+
+        @SuppressWarnings("unchecked")
+        AuthorizationHandler<Object> handler = handlerRegistry.resolve(authorizeEntity.authorizationHandler());
+        long start = System.nanoTime();
+        boolean success = false;
+        String errorMessage = null;
+
+        try {
+            handler.authorize(context);
+            success = true;
+            cacheResult(context, true);
+        } catch (AuthorizationException e) {
+            errorMessage = e.getMessage();
+            cacheResult(context, false);
+            throw e;
+        } finally {
+            firePostActions(context, handler.getClass(), success, System.nanoTime() - start, errorMessage);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private AuthorizationContext<Object> buildContext(
+            AuthorizeEntity authorizeEntity, Method method, Object[] args) {
+        Map<String, Object> resolvedIds = resolveParameters(authorizeEntity.ids(), method, args);
 
         Object user = null;
         if (authorizeEntity.includeUser() && currentUserProvider != null) {
@@ -160,65 +186,45 @@ public class AuthorizeEntityAspect {
             authCase = null;
         }
 
-        @SuppressWarnings("unchecked")
-        AuthorizationContext<Object> context = AuthorizationContext.builder()
+        return AuthorizationContext.builder()
                 .resolvedIds(resolvedIds)
                 .currentUser(user)
                 .authorizationCase(authCase)
                 .interceptedMethod(method)
                 .build();
+    }
 
-        @SuppressWarnings("unchecked")
-        AuthorizationHandler<Object> handler = handlerRegistry.resolve(authorizeEntity.authorizationHandler());
-        Class<?> handlerClass = handler.getClass();
-
-        // Check cache
-        if (cacheSupport != null) {
-            Boolean cached = cacheSupport.get(context);
-            if (cached != null) {
-                if (!cached) {
-                    throw new AuthorizationException("Access denied (cached)");
-                }
-                return;
-            }
+    private void throwIfCachedDenied(AuthorizationContext<?> context) {
+        if (cacheSupport == null) {
+            return;
         }
+        Boolean cached = cacheSupport.get(context);
+        if (cached != null && !cached) {
+            throw new AuthorizationException("Access denied (cached)");
+        }
+    }
 
-        long start = System.nanoTime();
-        boolean success = false;
-        String errorMessage = null;
+    private void cacheResult(AuthorizationContext<?> context, boolean granted) {
+        if (cacheSupport != null) {
+            cacheSupport.put(context, granted);
+        }
+    }
 
-        try {
-            handler.authorize(context);
-            success = true;
-
-            // Cache result
-            if (cacheSupport != null) {
-                cacheSupport.put(context, true);
-            }
-        } catch (AuthorizationException e) {
-            errorMessage = e.getMessage();
-
-            if (cacheSupport != null) {
-                cacheSupport.put(context, false);
-            }
-
-            throw e;
-        } finally {
-            long duration = System.nanoTime() - start;
-
-            // Audit
-            if (auditListener != null) {
-                AuthorizationEvent event = success
-                        ? AuthorizationEvent.success(context, handlerClass, duration)
-                        : AuthorizationEvent.failure(context, handlerClass, duration, errorMessage);
-                auditListener.onEvent(event);
-            }
-
-            // Post-processors
-            if (postProcessors != null) {
-                for (AuthorizationPostProcessor processor : postProcessors) {
-                    processor.afterAuthorization(context, success);
-                }
+    private void firePostActions(
+            AuthorizationContext<?> context,
+            Class<?> handlerClass,
+            boolean success,
+            long duration,
+            String errorMessage) {
+        if (auditListener != null) {
+            AuthorizationEvent event = success
+                    ? AuthorizationEvent.success(context, handlerClass, duration)
+                    : AuthorizationEvent.failure(context, handlerClass, duration, errorMessage);
+            auditListener.onEvent(event);
+        }
+        if (postProcessors != null) {
+            for (AuthorizationPostProcessor processor : postProcessors) {
+                processor.afterAuthorization(context, success);
             }
         }
     }
