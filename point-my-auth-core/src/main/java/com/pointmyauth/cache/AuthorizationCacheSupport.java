@@ -56,8 +56,7 @@ public class AuthorizationCacheSupport {
      * @param context the authorization context
      * @return the cached result ({@code true} = granted, {@code false} = denied), or {@code null}
      */
-    @Nullable
-    public Boolean get(AuthorizationContext<?> context) {
+    @Nullable public Boolean get(AuthorizationContext<?> context) {
         String key = buildKey(context);
         Long timestamp = timestamps.get(key);
         if (timestamp != null && System.currentTimeMillis() - timestamp > ttlMillis) {
@@ -113,7 +112,11 @@ public class AuthorizationCacheSupport {
         context.getResolvedIds()
                 .forEach((k, v) -> sb.append(k).append("=").append(v).append(","));
         if (context.getAuthorizationCase() != null) {
-            sb.append("case=").append(context.getAuthorizationCase());
+            sb.append("case=").append(context.getAuthorizationCase()).append(",");
+        }
+        Object user = context.getCurrentUser();
+        if (user != null) {
+            sb.append("user=").append(user);
         }
         return sb.toString();
     }

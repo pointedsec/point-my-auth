@@ -112,7 +112,7 @@ class AuthorizationCacheSupportTest {
     private void sleep(int iCount, int iDelay) throws ExecutionException, InterruptedException {
         ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
         List<Future<Integer>> futureList = new ArrayList<>(iCount);
-        for (int i=0; i < iCount; i++) {
+        for (int i = 0; i < iCount; i++) {
             int j = i;
             futureList.add(scheduledExecutorService.schedule(() -> j, iDelay, TimeUnit.SECONDS));
         }

@@ -172,8 +172,7 @@ public class AuthorizeEntityAspect {
     }
 
     @SuppressWarnings("unchecked")
-    private AuthorizationContext<Object> buildContext(
-            AuthorizeEntity authorizeEntity, Method method, Object[] args) {
+    private AuthorizationContext<Object> buildContext(AuthorizeEntity authorizeEntity, Method method, Object[] args) {
         Map<String, Object> resolvedIds = resolveParameters(authorizeEntity.ids(), method, args);
 
         Object user = null;
