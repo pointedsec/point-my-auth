@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.pointmyauth</groupId>
+    <groupId>io.github.pointedsec</groupId>
     <artifactId>point-my-auth</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
     <packaging>pom</packaging>
 
     <name>point-my-auth</name>
@@ -35,7 +35,6 @@
         <module>point-my-auth-core</module>
         <module>point-my-auth-test</module>
         <module>point-my-auth-spring-boot-starter</module>
-        <module>examples/point-my-auth-example</module>
     </modules>
 
     <properties>
@@ -73,17 +72,17 @@
 
             <!-- Module versions -->
             <dependency>
-                <groupId>com.pointmyauth</groupId>
+                <groupId>io.github.pointedsec</groupId>
                 <artifactId>point-my-auth-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.pointmyauth</groupId>
+                <groupId>io.github.pointedsec</groupId>
                 <artifactId>point-my-auth-test</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.pointmyauth</groupId>
+                <groupId>io.github.pointedsec</groupId>
                 <artifactId>point-my-auth-spring-boot-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -323,6 +322,9 @@
                                 <goals><goal>sign</goal></goals>
                             </execution>
                         </executions>
+                        <configuration>
+                            <keyname>46D3D8FA82D5E9F3</keyname>
+                        </configuration>
                     </plugin>
                     <plugin>
                         <groupId>org.sonatype.central</groupId>
