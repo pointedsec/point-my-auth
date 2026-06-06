@@ -7,16 +7,29 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 /**
- * Resolves parameters annotated with {@link PathVariable @PathVariable}.
+ * Resolves any method parameter by name, supporting all Java types
+ * ({@code String}, {@code Integer}, {@code Long}, {@code List}, POJOs, etc.).
  * <p>
- * Matches a parameter name declared in {@code @AuthorizeEntity#ids()} against
- * the {@code value} or {@code name} attribute of the {@code @PathVariable} annotation,
- * or against the Java parameter name if neither is set.
+ * Resolution strategy:
+ * <ol>
+ *     <li>If the parameter is annotated with {@link PathVariable @PathVariable},
+ *         the annotation's {@code value} or {@code name} attribute takes priority.</li>
+ *     <li>Otherwise, the parameter is matched by its Java parameter name.</li>
+ * </ol>
  * <p>
- * <strong>Example:</strong>
+ * <strong>Examples:</strong>
  * <pre>{@code
- * @AuthorizeEntity(ids = {"orderId"}, ...)
- * public OrderDto getOrder(@PathVariable Long orderId) { ... }
+ * // Matched by @PathVariable("orderId") annotation value
+ * public OrderDto getOrder(@PathVariable("orderId") Long id) { ... }
+ *
+ * // Matched by Java parameter name "orderId"
+ * public OrderDto getOrder(Long orderId) { ... }
+ *
+ * // Matched by Java parameter name "username"
+ * public UserDto getUser(String username) { ... }
+ *
+ * // Matched by Java parameter name "itemIds"
+ * public void process(List<Long> itemIds) { ... }
  * }</pre>
  */
 public class PathVariableResolver implements ParameterResolver {
@@ -26,11 +39,15 @@ public class PathVariableResolver implements ParameterResolver {
         Parameter[] parameters = method.getParameters();
         for (int i = 0; i < parameters.length; i++) {
             PathVariable pathVariable = parameters[i].getDeclaredAnnotation(PathVariable.class);
-            if (pathVariable == null) {
-                continue;
+            if (pathVariable != null) {
+                String name = resolveName(pathVariable, parameters[i]);
+                if (paramName.equals(name)) {
+                    return args[i];
+                }
             }
-            String name = resolveName(pathVariable, parameters[i]);
-            if (paramName.equals(name)) {
+        }
+        for (int i = 0; i < parameters.length; i++) {
+            if (paramName.equals(parameters[i].getName())) {
                 return args[i];
             }
         }
