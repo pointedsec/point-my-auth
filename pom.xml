@@ -12,6 +12,25 @@
     <name>point-my-auth</name>
     <description>Declarative, annotation-driven authorization for Spring Boot. Enforce authorization rules on any method using simple annotations — no boilerplate, no manual interceptor wiring.</description>
 
+    <url>https://github.com/pointedsec/point-my-auth</url>
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>pointedsec</name>
+            <url>https://github.com/pointedsec</url>
+        </developer>
+    </developers>
+    <scm>
+        <connection>scm:git:git://github.com/pointedsec/point-my-auth.git</connection>
+        <developerConnection>scm:git:ssh://github.com/pointedsec/point-my-auth.git</developerConnection>
+        <url>https://github.com/pointedsec/point-my-auth/tree/main</url>
+    </scm>
+
     <modules>
         <module>point-my-auth-core</module>
         <module>point-my-auth-test</module>
@@ -306,14 +325,13 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.13</version>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.7.0</version>
                         <extensions>true</extensions>
                         <configuration>
-                            <serverId>ossrh</serverId>
-                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                            <publishingServerId>central</publishingServerId>
+                            <autoPublish>true</autoPublish>
                         </configuration>
                     </plugin>
                 </plugins>

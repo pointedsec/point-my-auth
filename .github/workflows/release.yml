@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   release:
-    name: Create Release
+    name: Release to Maven Central
     runs-on: ubuntu-latest
 
     steps:
@@ -31,8 +31,35 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Build with tests
+      - name: Configure Maven settings
+        run: |
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml << 'EOF'
+          <settings>
+            <servers>
+              <server>
+                <id>central</id>
+                <username>${env.MAVEN_USERNAME}</username>
+                <password>${env.MAVEN_PASSWORD}</password>
+              </server>
+            </servers>
+          </settings>
+          EOF
+
+      - name: Build and verify
         run: mvn clean verify -P java-21 -P coverage
+
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: Deploy to Maven Central
+        run: mvn deploy -P java-21 -P release -DskipTests -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
+        env:
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
 
       - name: Generate changelog
         id: changelog
@@ -58,9 +85,10 @@ jobs:
             ${{ steps.changelog.outputs.changes }}
 
             ## Verification
-            - Build passes with Java 21 and 25
+            - Build passes with Java 21
             - All tests pass
             - Jacoco coverage report included
           files: |
             point-my-auth-core/target/*.jar
+            point-my-auth-test/target/*.jar
             point-my-auth-spring-boot-starter/target/*.jar
