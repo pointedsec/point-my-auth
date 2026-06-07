@@ -34,7 +34,7 @@ public class AuthConfig {
             }
 
             @Override
-            public AdminChecker<?> adminChecker() {
+            public AdminChecker<Object> adminChecker() {
                 return user -> user instanceof PointitUser pu && pu.admin();
             }
         };

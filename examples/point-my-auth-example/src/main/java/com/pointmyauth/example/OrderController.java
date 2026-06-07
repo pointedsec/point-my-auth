@@ -24,6 +24,8 @@ import java.util.Map;
 @RequestMapping("/api/orders")
 public class OrderController {
 
+    private static final String ORDER_PREFIX = "order ";
+
     private final OrderService orderService;
 
     public OrderController(OrderService orderService) {
@@ -149,7 +151,7 @@ public class OrderController {
     @GetMapping("/conditional/positive/{orderId}")
     @ConditionalAuthorize(condition = "#orderId > 0", authorizationHandler = ConditionalOrderHandler.class)
     public ResponseEntity<String> getPositiveOrder(@PathVariable Long orderId) {
-        return ResponseEntity.ok("order " + orderId);
+        return ResponseEntity.ok(ORDER_PREFIX + orderId);
     }
 
     // 12. Check string is not null/empty
@@ -208,7 +210,7 @@ public class OrderController {
     @GetMapping("/conditional/flag/{orderId}")
     @ConditionalAuthorize(condition = "#orderId != null", authorizationHandler = ConditionalOrderHandler.class)
     public ResponseEntity<String> getNonNullOrder(@PathVariable Long orderId) {
-        return ResponseEntity.ok("order " + orderId);
+        return ResponseEntity.ok(ORDER_PREFIX + orderId);
     }
 
     // =====================================================================
@@ -224,7 +226,7 @@ public class OrderController {
             authorizationCase = "READ",
             authorizationHandler = OrderAuthorizationHandler.class)
     public ResponseEntity<String> adminBypassEndpoint(@PathVariable String orderId) {
-        return ResponseEntity.ok("order " + orderId);
+        return ResponseEntity.ok(ORDER_PREFIX + orderId);
     }
 
     // 20. skipForAdmin=false — handler always runs, even for admins

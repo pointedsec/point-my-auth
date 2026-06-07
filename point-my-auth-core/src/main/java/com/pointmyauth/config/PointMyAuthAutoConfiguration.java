@@ -77,7 +77,7 @@ public class PointMyAuthAutoConfiguration {
     @ConditionalOnMissingBean
     public AdminChecker<Object> adminChecker(@Nullable PointMyAuthConfigurer configurer) {
         if (configurer != null) {
-            return (AdminChecker<Object>) configurer.adminChecker();
+            return configurer.adminChecker();
         }
         return null;
     }

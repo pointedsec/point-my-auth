@@ -19,7 +19,7 @@ import jakarta.annotation.Nullable;
  *         public CurrentUserProvider<Object> currentUserProvider() {
  *             return () -> SecurityContextHolder.getContext().getAuthentication().getPrincipal();
  *         }
- *         public AdminChecker<?> adminChecker() {
+ *         public AdminChecker<Object> adminChecker() {
  *             return user -> ((AppUser) user).isAdmin();
  *         }
  *     };
@@ -43,7 +43,7 @@ public interface PointMyAuthConfigurer {
      *
      * @return the admin checker, or {@code null} to disable admin bypass
      */
-    @Nullable default AdminChecker<?> adminChecker() {
+    @Nullable default AdminChecker<Object> adminChecker() {
         return null;
     }
 }

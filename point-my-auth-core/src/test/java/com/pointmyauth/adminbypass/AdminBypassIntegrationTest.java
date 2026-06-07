@@ -202,7 +202,7 @@ class AdminBypassIntegrationTest {
                 }
 
                 @Override
-                public AdminChecker<?> adminChecker() {
+                public AdminChecker<Object> adminChecker() {
                     return user -> user instanceof TestUser tu && tu.admin();
                 }
             };

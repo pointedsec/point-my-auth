@@ -109,10 +109,8 @@ public class AuthorizeEntityAspect {
             }
         } else {
             AuthorizeEntity single = method.getAnnotation(AuthorizeEntity.class);
-            if (single != null) {
-                if (!isAdmin(single.skipForAdmin())) {
-                    doAuthorize(joinPoint, single);
-                }
+            if (single != null && !isAdmin(single.skipForAdmin())) {
+                doAuthorize(joinPoint, single);
             }
         }
 

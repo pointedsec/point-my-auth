@@ -154,7 +154,7 @@ public class AuthConfig {
             }
 
             @Override
-            public AdminChecker<?> adminChecker() {
+            public AdminChecker<Object> adminChecker() {
                 return user -> ((User) user).admin();
             }
         };
