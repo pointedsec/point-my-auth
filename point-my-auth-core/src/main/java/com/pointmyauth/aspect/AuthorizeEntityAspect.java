@@ -167,7 +167,8 @@ public class AuthorizeEntityAspect {
         return joinPoint.proceed();
     }
 
-    private void doAuthorize(ProceedingJoinPoint joinPoint, AuthorizeEntity authorizeEntity) throws Throwable {
+    private void doAuthorize(ProceedingJoinPoint joinPoint, AuthorizeEntity authorizeEntity)
+            throws AuthorizationException {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
 
