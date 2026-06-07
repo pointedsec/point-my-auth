@@ -90,7 +90,7 @@ Traditional Spring Security requires configuring method security, writing `@PreA
 <dependency>
     <groupId>io.github.pointedsec</groupId>
     <artifactId>point-my-auth-spring-boot-starter</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
 </dependency>
 ```
 
@@ -175,21 +175,21 @@ That's it. The aspect intercepts `deleteOrder`, resolves `orderId`, fetches the 
 <dependency>
     <groupId>io.github.pointedsec</groupId>
     <artifactId>point-my-auth-spring-boot-starter</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
 </dependency>
 
 <!-- Or just the core library -->
 <dependency>
     <groupId>io.github.pointedsec</groupId>
     <artifactId>point-my-auth-core</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
 </dependency>
 
 <!-- Test utilities (for testing your handlers) -->
 <dependency>
     <groupId>io.github.pointedsec</groupId>
     <artifactId>point-my-auth-test</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
     <scope>test</scope>
 </dependency>
 ```
@@ -197,8 +197,8 @@ That's it. The aspect intercepts `deleteOrder`, resolves `orderId`, fetches the 
 ### Gradle
 
 ```groovy
-implementation 'io.github.pointedsec:point-my-auth-spring-boot-starter:0.1.0'
-testImplementation 'io.github.pointedsec:point-my-auth-test:0.1.0'
+implementation 'io.github.pointedsec:point-my-auth-spring-boot-starter:0.1.1'
+testImplementation 'io.github.pointedsec:point-my-auth-test:0.1.1'
 ```
 
 ### Requirements
