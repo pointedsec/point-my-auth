@@ -35,6 +35,7 @@ public void deleteOrder(Long orderId) {
   - [CurrentUserProvider](#currentuserprovider)
 - [Advanced Features](#advanced-features)
   - [Repeatable Annotations](#repeatable-annotations)
+  - [Admin Bypass](#admin-bypass)
   - [Conditional Authorization (SpEL)](#conditional-authorization-sel)
   - [Parameter Resolution](#parameter-resolution)
   - [Post-Processors](#post-processors)
@@ -42,6 +43,7 @@ public void deleteOrder(Long orderId) {
   - [Authorization Cache](#authorization-cache)
 - [Configuration](#configuration)
   - [PointMyAuthConfigurer](#pointmyauthconfigurer)
+  - [AdminChecker](#adminchecker)
   - [Auto-Configuration](#auto-configuration)
   - [Cache Tuning](#cache-tuning)
 - [Complete Examples](#complete-examples)
@@ -144,9 +146,18 @@ public class AuthConfig {
 
     @Bean
     public PointMyAuthConfigurer authConfigurer() {
-        return () -> () -> SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getPrincipal();
+        return new PointMyAuthConfigurer() {
+            @Override
+            public CurrentUserProvider<Object> currentUserProvider() {
+                return () -> SecurityContextHolder.getContext()
+                        .getAuthentication().getPrincipal();
+            }
+
+            @Override
+            public AdminChecker<?> adminChecker() {
+                return user -> ((User) user).admin();
+            }
+        };
     }
 }
 ```
@@ -226,6 +237,7 @@ public @interface AuthorizeEntity {
 | `includeUser` | `boolean` | `true` | Whether to fetch the current user via `CurrentUserProvider` |
 | `authorizationCase` | `String` | `""` | Label passed to the handler (e.g., operation type) |
 | `authorizationHandler` | `Class` | *required* | The handler class that makes the authorization decision |
+| `skipForAdmin` | `boolean` | `true` | Skip handler for admin users when `AdminChecker` is configured |
 
 #### `@ConditionalAuthorize`
 
@@ -238,7 +250,7 @@ SpEL-based conditional authorization. Evaluates an expression before calling the
 public OrderDto getOrder(Long orderId) { ... }
 ```
 
-The SpEL expression has access to all method parameters by name.
+The SpEL expression has access to all method parameters by name. Also supports `skipForAdmin` — set to `false` to force evaluation even for admin users.
 
 #### `@AuthorizeEntities`
 
@@ -346,6 +358,82 @@ public class OrderService {
 ```
 
 Both handlers are called in order. If either throws `AuthorizationException`, the method is skipped.
+
+---
+
+### Admin Bypass
+
+Skip authorization entirely for admin users without modifying your handlers. Register an `AdminChecker` bean that defines how to identify admin users, and all `@AuthorizeEntity` / `@ConditionalAuthorize` annotations with `skipForAdmin = true` (the default) will be skipped for admin users.
+
+#### Configuration
+
+```java
+@Bean
+public PointMyAuthConfigurer authConfigurer() {
+    return new PointMyAuthConfigurer() {
+        @Override
+        public CurrentUserProvider<Object> currentUserProvider() {
+            return () -> SecurityContextHolder.getContext()
+                    .getAuthentication().getPrincipal();
+        }
+
+        @Override
+        public AdminChecker<?> adminChecker() {
+            return user -> ((AppUser) user).isAdmin();
+        }
+    };
+}
+```
+
+#### How it works
+
+| `skipForAdmin` | User is admin | Behavior |
+|---|---|---|
+| `true` (default) | Yes | Handler skipped entirely |
+| `true` (default) | No | Handler called normally |
+| `false` | Yes | Handler called normally |
+| `false` | No | Handler called normally |
+
+```java
+// Admins skip this handler entirely (skipForAdmin = true by default)
+@AuthorizeEntity(
+    ids = {"orderId"},
+    includeUser = true,
+    authorizationCase = "DELETE",
+    authorizationHandler = OrderAuthorizationHandler.class)
+public void deleteOrder(Long orderId) { ... }
+
+// Handler always runs, even for admins
+@AuthorizeEntity(
+    ids = {"orderId"},
+    includeUser = true,
+    skipForAdmin = false,
+    authorizationCase = "DELETE",
+    authorizationHandler = OrderAuthorizationHandler.class)
+public void forceDeleteOrder(Long orderId) { ... }
+
+// ConditionalAuthorize also supports skipForAdmin
+@ConditionalAuthorize(
+    condition = "#orderId > 0",
+    skipForAdmin = true,
+    authorizationHandler = OrderAuthorizationHandler.class)
+public OrderDto getOrder(Long orderId) { ... }
+```
+
+Works with repeatable annotations too — each annotation is checked independently:
+
+```java
+@AuthorizeEntity(
+    ids = {"orderId"},
+    includeUser = true,
+    authorizationHandler = OrderHandler.class)      // skipped for admin
+@AuthorizeEntity(
+    ids = {"#header:X-Tenant-Id"},
+    includeUser = false,
+    skipForAdmin = false,
+    authorizationHandler = TenantHandler.class)     // NOT skipped for admin
+public OrderDto getOrder(Long orderId) { ... }
+```
 
 ---
 
@@ -574,6 +662,39 @@ public class AuthConfig {
 }
 ```
 
+### AdminChecker
+
+Implement `AdminChecker` to define how admin users are identified. When registered via `PointMyAuthConfigurer.adminChecker()`, the aspect skips authorization for admin users on annotations with `skipForAdmin = true`.
+
+```java
+@Bean
+public PointMyAuthConfigurer authConfigurer() {
+    return new PointMyAuthConfigurer() {
+        @Override
+        public CurrentUserProvider<Object> currentUserProvider() {
+            return () -> SecurityContextHolder.getContext()
+                    .getAuthentication().getPrincipal();
+        }
+
+        @Override
+        public AdminChecker<?> adminChecker() {
+            return user -> ((AppUser) user).isAdmin();
+        }
+    };
+}
+```
+
+The `AdminChecker` is a functional interface — you can also use a lambda:
+
+```java
+@Override
+public AdminChecker<?> adminChecker() {
+    return user -> user instanceof AppUser appUser && appUser.admin();
+}
+```
+
+If `adminChecker()` returns `null` (the default), admin bypass is disabled entirely and all handlers run normally.
+
 ### Auto-Configuration
 
 `PointMyAuthAutoConfiguration` registers these beans automatically:
@@ -583,6 +704,7 @@ public class AuthConfig {
 | `AuthorizationHandlerRegistry` | Resolves handler classes to instances |
 | `AuthorizeEntityAspect` | AOP aspect intercepting annotated methods |
 | `CurrentUserProvider` | From your `PointMyAuthConfigurer` |
+| `AdminChecker` | From your `PointMyAuthConfigurer` (optional, enables admin bypass) |
 | `AuthorizationAuditListener` | Event bus for audit logging |
 | `AuthorizationCacheSupport` | Result caching |
 
@@ -742,6 +864,16 @@ public class AdminOnlyHandler implements AuthorizationHandler<User> {
 // Usage:
 @AuthorizeEntity(ids = {}, authorizationHandler = AdminOnlyHandler.class)
 public void adminOnlyOperation() { ... }
+
+// Or use Admin Bypass instead of a dedicated handler:
+// 1. Configure AdminChecker in your PointMyAuthConfigurer
+// 2. Use skipForAdmin=true (default) — admins skip the handler entirely
+@AuthorizeEntity(ids = {}, authorizationHandler = AnyHandler.class)
+public void adminBypassOperation() { ... }
+
+// Or disable bypass for specific endpoints:
+@AuthorizeEntity(ids = {}, skipForAdmin = false, authorizationHandler = AuditHandler.class)
+public void auditTrailOperation() { ... }
 ```
 
 ---
@@ -826,6 +958,14 @@ class OrderServiceTest {
         assertThatThrownBy(() -> orderService.deleteOrder(100L))
             .isInstanceOf(AuthorizationException.class)
             .hasMessageContaining("Only admins can delete orders");
+    }
+
+    @Test
+    void adminShouldBypassHandler() {
+        authConfig.setCurrentUser(new User(1L, "Admin", true));
+        // With AdminChecker configured, admin bypasses the handler
+        orderService.deleteOrder(100L);
+        // No exception — handler was skipped
     }
 }
 ```
@@ -952,7 +1092,7 @@ point-my-auth/
 │       ├── handler/                     # Handler interface + registry
 │       ├── processor/                   # Post-processor interface
 │       ├── resolver/                    # Parameter resolvers
-│       └── user/                        # CurrentUserProvider
+│       └── user/                        # CurrentUserProvider, AdminChecker
 ├── point-my-auth-test/                  # Test utilities
 │   └── src/main/java/com/pointmyauth/test/
 │       ├── AuthorizationTestSupport.java

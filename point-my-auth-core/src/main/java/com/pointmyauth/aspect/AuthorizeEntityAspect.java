@@ -14,6 +14,7 @@ import com.pointmyauth.processor.AuthorizationPostProcessor;
 import com.pointmyauth.resolver.CompositeParameterResolver;
 import com.pointmyauth.resolver.PathVariableResolver;
 import com.pointmyauth.resolver.RequestBodyResolver;
+import com.pointmyauth.user.AdminChecker;
 import com.pointmyauth.user.CurrentUserProvider;
 import jakarta.annotation.Nullable;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -52,6 +53,8 @@ public class AuthorizeEntityAspect {
 
     @Nullable private final CurrentUserProvider<Object> currentUserProvider;
 
+    @Nullable private final AdminChecker<Object> adminChecker;
+
     @Nullable private final List<AuthorizationPostProcessor> postProcessors;
 
     @Nullable private final AuthorizationAuditListener auditListener;
@@ -66,11 +69,13 @@ public class AuthorizeEntityAspect {
     public AuthorizeEntityAspect(
             AuthorizationHandlerRegistry registry,
             @Nullable CurrentUserProvider<Object> currentUserProvider,
+            @Nullable AdminChecker<Object> adminChecker,
             @Nullable List<AuthorizationPostProcessor> postProcessors,
             @Nullable AuthorizationAuditListener auditListener,
             @Nullable AuthorizationCacheSupport cacheSupport) {
         this.handlerRegistry = registry;
         this.currentUserProvider = currentUserProvider;
+        this.adminChecker = adminChecker;
         this.postProcessors = postProcessors;
         this.auditListener = auditListener;
         this.cacheSupport = cacheSupport;
@@ -81,7 +86,7 @@ public class AuthorizeEntityAspect {
      */
     public AuthorizeEntityAspect(
             AuthorizationHandlerRegistry registry, @Nullable CurrentUserProvider<Object> currentUserProvider) {
-        this(registry, currentUserProvider, null, null, null);
+        this(registry, currentUserProvider, null, null, null, null);
     }
 
     /**
@@ -98,16 +103,32 @@ public class AuthorizeEntityAspect {
         AuthorizeEntities container = method.getAnnotation(AuthorizeEntities.class);
         if (container != null) {
             for (AuthorizeEntity annotation : container.value()) {
-                doAuthorize(joinPoint, annotation);
+                if (!isAdmin(annotation.skipForAdmin())) {
+                    doAuthorize(joinPoint, annotation);
+                }
             }
         } else {
             AuthorizeEntity single = method.getAnnotation(AuthorizeEntity.class);
             if (single != null) {
-                doAuthorize(joinPoint, single);
+                if (!isAdmin(single.skipForAdmin())) {
+                    doAuthorize(joinPoint, single);
+                }
             }
         }
 
         return joinPoint.proceed();
+    }
+
+    /**
+     * Returns {@code true} if the current user is an admin and the annotation
+     * allows bypass ({@code skipForAdmin=true}).
+     */
+    private boolean isAdmin(boolean skipForAdmin) {
+        if (!skipForAdmin || adminChecker == null || currentUserProvider == null) {
+            return false;
+        }
+        Object user = currentUserProvider.getCurrentUser();
+        return user != null && adminChecker.isAdmin(user);
     }
 
     /**
@@ -119,6 +140,10 @@ public class AuthorizeEntityAspect {
         Method method = signature.getMethod();
         ConditionalAuthorize annotation = method.getAnnotation(ConditionalAuthorize.class);
         if (annotation == null) {
+            return joinPoint.proceed();
+        }
+
+        if (isAdmin(annotation.skipForAdmin())) {
             return joinPoint.proceed();
         }
 

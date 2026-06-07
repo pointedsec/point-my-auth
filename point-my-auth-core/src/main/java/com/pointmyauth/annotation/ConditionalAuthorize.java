@@ -46,4 +46,16 @@ public @interface ConditionalAuthorize {
      * @return the authorization handler class
      */
     Class<? extends AuthorizationHandler> authorizationHandler();
+
+    /**
+     * Whether to skip authorization for admin users.
+     * <p>
+     * When {@code true} (the default) and a {@link com.pointmyauth.user.AdminChecker}
+     * bean is registered, the aspect will skip both the SpEL evaluation and the handler
+     * for admin users. Set to {@code false} to always run the conditional check
+     * regardless of admin status.
+     *
+     * @return {@code true} if admin users should bypass authorization
+     */
+    boolean skipForAdmin() default true;
 }
