@@ -75,4 +75,15 @@ public @interface AuthorizeEntity {
      * @return the authorization handler class
      */
     Class<? extends AuthorizationHandler> authorizationHandler();
+
+    /**
+     * Whether to skip authorization for admin users.
+     * <p>
+     * When {@code true} (the default) and a {@link com.pointmyauth.user.AdminChecker}
+     * bean is registered, the aspect will skip the handler entirely for admin users.
+     * Set to {@code false} to always run the handler regardless of admin status.
+     *
+     * @return {@code true} if admin users should bypass authorization
+     */
+    boolean skipForAdmin() default true;
 }

@@ -24,6 +24,8 @@ import java.util.Map;
 @RequestMapping("/api/orders")
 public class OrderController {
 
+    private static final String ORDER_PREFIX = "order ";
+
     private final OrderService orderService;
 
     public OrderController(OrderService orderService) {
@@ -149,7 +151,7 @@ public class OrderController {
     @GetMapping("/conditional/positive/{orderId}")
     @ConditionalAuthorize(condition = "#orderId > 0", authorizationHandler = ConditionalOrderHandler.class)
     public ResponseEntity<String> getPositiveOrder(@PathVariable Long orderId) {
-        return ResponseEntity.ok("order " + orderId);
+        return ResponseEntity.ok(ORDER_PREFIX + orderId);
     }
 
     // 12. Check string is not null/empty
@@ -208,6 +210,53 @@ public class OrderController {
     @GetMapping("/conditional/flag/{orderId}")
     @ConditionalAuthorize(condition = "#orderId != null", authorizationHandler = ConditionalOrderHandler.class)
     public ResponseEntity<String> getNonNullOrder(@PathVariable Long orderId) {
-        return ResponseEntity.ok("order " + orderId);
+        return ResponseEntity.ok(ORDER_PREFIX + orderId);
+    }
+
+    // =====================================================================
+    // Admin bypass examples — skipForAdmin controls whether admins
+    // bypass the authorization handler.
+    // =====================================================================
+
+    // 19. Default (skipForAdmin=true) — admins bypass, non-admins go through handler
+    @GetMapping("/admin-bypass/{orderId}")
+    @AuthorizeEntity(
+            ids = {"orderId"},
+            includeUser = true,
+            authorizationCase = "READ",
+            authorizationHandler = OrderAuthorizationHandler.class)
+    public ResponseEntity<String> adminBypassEndpoint(@PathVariable String orderId) {
+        return ResponseEntity.ok(ORDER_PREFIX + orderId);
+    }
+
+    // 20. skipForAdmin=false — handler always runs, even for admins
+    @DeleteMapping("/admin-no-bypass/{orderId}")
+    @AuthorizeEntity(
+            ids = {"orderId"},
+            includeUser = true,
+            skipForAdmin = false,
+            authorizationCase = "DELETE",
+            authorizationHandler = OrderAuthorizationHandler.class)
+    public ResponseEntity<String> adminNoBypassEndpoint(@PathVariable String orderId) {
+        return ResponseEntity.ok("deleted " + orderId);
+    }
+
+    // 21. @ConditionalAuthorize with admin bypass — admins skip SpEL + handler
+    @GetMapping("/conditional/admin-bypass/{orderId}")
+    @ConditionalAuthorize(
+            condition = "#orderId > 0",
+            authorizationHandler = OrderAuthorizationHandler.class)
+    public ResponseEntity<String> conditionalAdminBypass(@PathVariable Long orderId) {
+        return ResponseEntity.ok("conditional order " + orderId);
+    }
+
+    // 22. @ConditionalAuthorize with skipForAdmin=false — always evaluates SpEL
+    @GetMapping("/conditional/admin-no-bypass/{orderId}")
+    @ConditionalAuthorize(
+            condition = "#orderId > 0",
+            skipForAdmin = false,
+            authorizationHandler = OrderAuthorizationHandler.class)
+    public ResponseEntity<String> conditionalAdminNoBypass(@PathVariable Long orderId) {
+        return ResponseEntity.ok("conditional no-bypass order " + orderId);
     }
 }
